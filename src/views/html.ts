@@ -4,16 +4,21 @@ export function renderHomePage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Forge — Dynamic QR Codes with Scan Tracking & Auto-Expiry</title>
-  <meta name="description" content="Generate styled dynamic QR codes with real-time scan analytics, custom designs, and scan limit auto-deactivation. Powered by Cloudflare Workers & D1.">
+  <title>QR Forge — Dynamic QR Codes with Unique Customer Tracking & Bulk Generator</title>
+  <meta name="description" content="Dynamic QR Code generator with real-time unique customer tracking, batch .txt/.docx processing, ZIP export, and scan-limit auto-deactivation.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Mammoth for .docx extraction & JSZip for batch zip export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
   <style>
     :root {
       --bg-dark: #090d16;
-      --card-bg: rgba(18, 24, 38, 0.85);
-      --card-border: rgba(255, 255, 255, 0.08);
+      --card-bg: rgba(18, 24, 38, 0.88);
+      --card-border: rgba(255, 255, 255, 0.09);
       --primary: #6366f1;
       --primary-hover: #4f46e5;
       --accent: #ec4899;
@@ -22,7 +27,7 @@ export function renderHomePage(): string {
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --input-bg: rgba(15, 23, 42, 0.7);
+      --input-bg: rgba(15, 23, 42, 0.75);
     }
 
     * {
@@ -39,22 +44,32 @@ export function renderHomePage(): string {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem 4rem;
+      padding: 2rem 1rem 5rem;
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.13) 0%, transparent 45%),
         radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 60%);
       background-attachment: fixed;
     }
 
     .container {
       width: 100%;
-      max-width: 1000px;
+      max-width: 1080px;
     }
 
     header {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
     }
 
     .brand-badge {
@@ -63,13 +78,31 @@ export function renderHomePage(): string {
       gap: 0.5rem;
       padding: 0.35rem 0.85rem;
       border-radius: 9999px;
-      background: rgba(99, 102, 241, 0.12);
-      border: 1px solid rgba(99, 102, 241, 0.3);
+      background: rgba(99, 102, 241, 0.14);
+      border: 1px solid rgba(99, 102, 241, 0.35);
       color: #818cf8;
       font-size: 0.85rem;
       font-weight: 600;
-      margin-bottom: 1rem;
       letter-spacing: 0.02em;
+    }
+
+    .auth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-badge:hover {
+      background: rgba(16, 185, 129, 0.2);
     }
 
     h1 {
@@ -85,12 +118,63 @@ export function renderHomePage(): string {
 
     .subtitle {
       color: var(--text-muted);
-      font-size: 1.1rem;
-      max-width: 600px;
+      font-size: 1.05rem;
+      max-width: 650px;
       margin: 0 auto;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
+    /* Tabs */
+    .tabs-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 0.35rem;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.7rem 1.25rem;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Cards */
     .grid-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -146,7 +230,7 @@ export function renderHomePage(): string {
       margin-left: 0.35rem;
     }
 
-    input, select {
+    input, select, textarea {
       width: 100%;
       padding: 0.85rem 1rem;
       background: var(--input-bg);
@@ -159,7 +243,15 @@ export function renderHomePage(): string {
       transition: all 0.2s ease;
     }
 
-    input:focus, select:focus {
+    textarea {
+      resize: vertical;
+      min-height: 140px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
       background: rgba(15, 23, 42, 0.95);
@@ -235,10 +327,6 @@ export function renderHomePage(): string {
       box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.55);
     }
 
-    .btn-submit:active {
-      transform: translateY(0);
-    }
-
     .btn-submit:disabled {
       opacity: 0.6;
       cursor: not-allowed;
@@ -256,8 +344,8 @@ export function renderHomePage(): string {
     }
 
     .qr-box {
-      width: 250px;
-      height: 250px;
+      width: 240px;
+      height: 240px;
       background: #ffffff;
       border-radius: 20px;
       padding: 12px;
@@ -265,7 +353,7 @@ export function renderHomePage(): string {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       transition: transform 0.3s ease;
     }
 
@@ -392,70 +480,159 @@ export function renderHomePage(): string {
     }
 
     .meta-row {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
       width: 100%;
-      font-size: 0.825rem;
+      font-size: 0.775rem;
       color: var(--text-muted);
       margin-top: 1rem;
       padding-top: 1rem;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: center;
     }
 
-    /* Stats Quick Lookup Section */
-    .stats-section {
-      margin-top: 2.5rem;
+    .meta-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+      margin-top: 0.2rem;
     }
 
-    .stats-search-bar {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .stats-search-bar input {
-      flex: 1;
-    }
-
-    .stats-search-bar button {
-      width: auto;
-      padding: 0 1.5rem;
-      margin-top: 0;
-    }
-
-    .stats-result {
+    /* Bulk Upload Styles */
+    .dropzone {
+      border: 2px dashed rgba(99, 102, 241, 0.35);
+      border-radius: 14px;
+      padding: 1.5rem 1rem;
+      text-align: center;
       background: rgba(15, 23, 42, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 1.25rem;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.08);
+    }
+
+    .file-input {
       display: none;
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 1rem;
+    .file-info-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
       margin-top: 0.75rem;
     }
 
-    .stat-pill {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 10px;
-      padding: 0.75rem;
+    /* Results Table */
+    .results-section {
+      margin-top: 2rem;
     }
 
-    .stat-pill .label {
-      font-size: 0.75rem;
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 0.85rem 1rem;
       color: var(--text-muted);
-      margin-bottom: 0.25rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--card-border);
+      white-space: nowrap;
     }
 
-    .stat-pill .value {
-      font-size: 1.2rem;
-      font-weight: 700;
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-thumb {
+      width: 48px;
+      height: 48px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .table-thumb svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .btn-zip {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #fff;
-      font-family: 'JetBrains Mono', monospace;
+      padding: 0.85rem 1.5rem;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s;
+    }
+
+    .btn-zip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 25px -5px rgba(16, 185, 129, 0.55);
+    }
+
+    /* Modal / Auth Dialog */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.7);
     }
 
     .toast {
@@ -483,149 +660,286 @@ export function renderHomePage(): string {
 </head>
 <body>
   <div class="container">
-    <header>
+    <div class="top-bar">
       <div class="brand-badge">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/>
         </svg>
-        Cloudflare Workers + D1 Edge App
+        Cloudflare Workers + D1 Edge Engine
       </div>
+      <div id="auth-status-badge" class="auth-badge" onclick="openAuthModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span id="auth-status-text">Admin Key Active</span>
+      </div>
+    </div>
+
+    <header>
       <h1>QR Forge</h1>
-      <p class="subtitle">Generate high-reliability dynamic QR codes with live scan tracking, custom SVG styles, and scan-limit auto-deactivation.</p>
+      <p class="subtitle">Generate high-reliability dynamic QR codes with real-time unique customer tracking, batch file generation, and bulk ZIP export.</p>
     </header>
 
-    <div class="grid-layout">
-      <!-- Left: Create Form -->
-      <div class="glass-card">
-        <h2 class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Create Dynamic QR
-        </h2>
+    <!-- Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="single-tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Single QR
+      </button>
+      <button class="tab-btn" data-tab="bulk-tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Bulk Batch (.txt / .docx)
+      </button>
+      <button class="tab-btn" data-tab="analytics-tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        Analytics Lookup
+      </button>
+    </div>
 
-        <form id="create-form">
-          <div class="form-group">
-            <label for="target_url">Target Destination URL</label>
-            <input type="url" id="target_url" name="target_url" placeholder="https://yourwebsite.com/promo" required autocomplete="off" />
-          </div>
+    <!-- TAB 1: Single QR Creation -->
+    <div id="single-tab" class="tab-pane active">
+      <div class="grid-layout">
+        <!-- Left: Create Form -->
+        <div class="glass-card">
+          <h2 class="card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Create Dynamic QR
+          </h2>
 
-          <div class="form-group">
-            <label>QR Code Style</label>
-            <input type="hidden" id="design" name="design" value="classic" />
-            <div class="design-options">
-              <button type="button" class="design-btn active" data-style="classic">
-                <span>⬛ Classic</span>
-              </button>
-              <button type="button" class="design-btn" data-style="rounded">
-                <span>🔘 Rounded</span>
-              </button>
-              <button type="button" class="design-btn" data-style="dots">
-                <span>⚪ Dots</span>
-              </button>
-              <button type="button" class="design-btn" data-style="gradient">
-                <span>🌈 Gradient</span>
-              </button>
-              <button type="button" class="design-btn" data-style="logo">
-                <span>🎯 Logo Cut</span>
-              </button>
+          <form id="create-form">
+            <div class="form-group">
+              <label for="target_url">Target Destination URL</label>
+              <input type="url" id="target_url" name="target_url" placeholder="https://yourwebsite.com/promo" required autocomplete="off" />
+            </div>
+
+            <div class="form-group">
+              <label>QR Code Style</label>
+              <input type="hidden" id="single-design" name="design" value="classic" />
+              <div class="design-options">
+                <button type="button" class="design-btn active" data-style="classic" data-form="single">
+                  <span>⬛ Classic</span>
+                </button>
+                <button type="button" class="design-btn" data-style="rounded" data-form="single">
+                  <span>🔘 Rounded</span>
+                </button>
+                <button type="button" class="design-btn" data-style="dots" data-form="single">
+                  <span>⚪ Dots</span>
+                </button>
+                <button type="button" class="design-btn" data-style="gradient" data-form="single">
+                  <span>🌈 Gradient</span>
+                </button>
+                <button type="button" class="design-btn" data-style="logo" data-form="single">
+                  <span>🎯 Logo Cut</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="max_scans">
+                Unique Customer Cap
+                <span class="label-hint">(Optional — auto-deactivates after N distinct customer devices)</span>
+              </label>
+              <input type="number" id="max_scans" name="max_scans" min="1" placeholder="e.g. 500 (empty = lifetime unlimited)" />
+            </div>
+
+            <button type="submit" class="btn-submit" id="submit-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
+              Generate QR Code
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: Preview & Output -->
+        <div class="glass-card preview-container">
+          <div class="qr-box" id="qr-box">
+            <div class="placeholder-qr">
+              <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2"/>
+                <path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/>
+              </svg>
+              <span>Enter a URL & hit generate to preview your QR code</span>
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="max_scans">
-              Scan Limit
-              <span class="label-hint">(Optional — auto-deactivates after N scans)</span>
-            </label>
-            <input type="number" id="max_scans" name="max_scans" min="1" placeholder="e.g. 500 (leave empty for unlimited)" />
-          </div>
+          <div id="output-details" style="display: none; width: 100%;">
+            <div class="link-box">
+              <span class="short-url-text" id="short-url-display">https://...</span>
+              <button type="button" class="copy-btn" id="copy-btn">Copy Link</button>
+            </div>
 
-          <button type="submit" class="btn-submit" id="submit-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-            </svg>
-            Generate QR Code
-          </button>
-        </form>
-      </div>
+            <div class="actions-grid">
+              <a id="download-btn" class="btn-action btn-download" download="qr-code.svg">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download SVG
+              </a>
+              <a id="test-btn" class="btn-action btn-test" target="_blank" rel="noopener noreferrer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Test Scan
+              </a>
+            </div>
 
-      <!-- Right: Preview & Output -->
-      <div class="glass-card preview-container" id="preview-card">
-        <div class="qr-box" id="qr-box">
-          <div class="placeholder-qr">
-            <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect width="18" height="18" x="3" y="3" rx="2"/>
-              <path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/>
-            </svg>
-            <span>Enter a URL & hit generate to preview your QR code</span>
-          </div>
-        </div>
-
-        <div id="output-details" style="display: none; width: 100%;">
-          <div class="link-box">
-            <span class="short-url-text" id="short-url-display">https://...</span>
-            <button type="button" class="copy-btn" id="copy-btn">Copy Link</button>
-          </div>
-
-          <div class="actions-grid">
-            <a id="download-btn" class="btn-action btn-download" download="qr-code.svg">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download SVG
-            </a>
-            <a id="test-btn" class="btn-action btn-test" target="_blank" rel="noopener noreferrer">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Test Scan / Link
-            </a>
-          </div>
-
-          <div class="meta-row">
-            <div>Status: <span id="status-badge" class="status-badge status-active">Active</span></div>
-            <div>Scans: <span id="scans-display" style="font-family:'JetBrains Mono'; font-weight:700; color:#fff;">0 / ∞</span></div>
+            <div class="meta-row">
+              <div>Status: <span id="status-badge" class="status-badge status-active">Active</span></div>
+              <div>Unique: <span id="unique-scans-display" class="meta-val">0 / ∞</span></div>
+              <div>Total Hits: <span id="raw-scans-display" class="meta-val">0</span></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Stats Quick Lookup -->
-    <div class="glass-card stats-section">
-      <h2 class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
-        </svg>
-        QR Analytics & Lookup
-      </h2>
-      <div class="stats-search-bar">
-        <input type="text" id="stats-id-input" placeholder="Enter QR ID (e.g. 8-character ID or full short link)" autocomplete="off" />
-        <button type="button" class="btn-submit" id="lookup-btn">Check Stats</button>
-      </div>
+    <!-- TAB 2: Bulk Batch Generator -->
+    <div id="bulk-tab" class="tab-pane">
+      <div class="glass-card">
+        <h2 class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Batch Import & Generator (Unlimited Lifetime QRs)
+        </h2>
 
-      <div class="stats-result" id="stats-result">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-          <strong id="stats-id-title" style="font-family:'JetBrains Mono'; color:#38bdf8;"></strong>
-          <span id="stats-status-badge" class="status-badge"></span>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-pill">
-            <div class="label">Total Scans</div>
-            <div class="value" id="stats-scan-count">0</div>
-          </div>
-          <div class="stat-pill">
-            <div class="label">Max Scan Cap</div>
-            <div class="value" id="stats-max-scans">Unlimited</div>
-          </div>
-          <div class="stat-pill">
-            <div class="label">Design Style</div>
-            <div class="value" id="stats-design" style="text-transform:capitalize;">-</div>
-          </div>
-          <div class="stat-pill">
-            <div class="label">Created</div>
-            <div class="value" id="stats-created" style="font-size:0.9rem;">-</div>
+        <!-- Dropzone -->
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="file-input" class="file-input" accept=".txt,.docx" />
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.5rem;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <div style="font-weight:600; font-size:1rem; color:#fff;">Click or drag & drop .txt or .docx file here</div>
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Supports plain text files (1 URL per line) or Word documents</div>
+          <div id="file-info" style="display:none;" class="file-info-badge">
+            <span id="file-name">file.txt</span> (<span id="detected-count">0 URLs detected</span>)
           </div>
         </div>
-        <div style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted); word-break:break-all;">
-          Target: <a id="stats-target-link" href="#" target="_blank" style="color:#a5b4fc;"></a>
+
+        <!-- Or Paste URLs -->
+        <div class="form-group">
+          <label for="bulk-urls-input">
+            Or Paste URLs directly
+            <span class="label-hint">(One URL per line)</span>
+          </label>
+          <textarea id="bulk-urls-input" placeholder="https://example.com/item-1&#10;https://example.com/item-2&#10;https://example.com/item-3"></textarea>
         </div>
+
+        <div class="form-group">
+          <label>Batch QR Code Design</label>
+          <input type="hidden" id="bulk-design" name="design" value="classic" />
+          <div class="design-options">
+            <button type="button" class="design-btn active" data-style="classic" data-form="bulk">
+              <span>⬛ Classic</span>
+            </button>
+            <button type="button" class="design-btn" data-style="rounded" data-form="bulk">
+              <span>🔘 Rounded</span>
+            </button>
+            <button type="button" class="design-btn" data-style="dots" data-form="bulk">
+              <span>⚪ Dots</span>
+            </button>
+            <button type="button" class="design-btn" data-style="gradient" data-form="bulk">
+              <span>🌈 Gradient</span>
+            </button>
+            <button type="button" class="design-btn" data-style="logo" data-form="bulk">
+              <span>🎯 Logo Cut</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="btn-submit" id="bulk-submit-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          Generate Batch QR Codes
+        </button>
+
+        <!-- Bulk Results & ZIP Download -->
+        <div id="bulk-results-panel" class="results-section" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
+            <div>
+              <h3 style="font-size:1.15rem; font-weight:700; color:#fff;">Batch Ready (<span id="batch-total-count">0</span> QRs Generated)</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted);">All codes have lifetime unlimited scanning configured.</p>
+            </div>
+            <button type="button" class="btn-zip" id="download-zip-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download All as ZIP (SVGs + CSV)
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 50px;">#</th>
+                  <th style="width: 70px;">QR</th>
+                  <th>Destination URL</th>
+                  <th>Short Tracking Link</th>
+                  <th style="width: 120px; text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="bulk-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Analytics Lookup -->
+    <div id="analytics-tab" class="tab-pane">
+      <div class="glass-card">
+        <h2 class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+          </svg>
+          QR Analytics & Unique Customer Lookup
+        </h2>
+        <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem;">
+          <input type="text" id="stats-id-input" placeholder="Enter QR ID (e.g. 8-character ID or full short link)" autocomplete="off" />
+          <button type="button" class="btn-submit" id="lookup-btn" style="width:auto; padding:0 1.5rem; margin-top:0;">Check Stats</button>
+        </div>
+
+        <div class="stats-result" id="stats-result" style="background:rgba(15, 23, 42, 0.5); border:1px solid rgba(255, 255, 255, 0.08); border-radius:12px; padding:1.25rem; display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <strong id="stats-id-title" style="font-family:'JetBrains Mono'; color:#38bdf8;"></strong>
+            <span id="stats-status-badge" class="status-badge"></span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:1rem; margin-top:0.75rem;">
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Distinct Customers</div>
+              <div style="font-size:1.2rem; font-weight:700; color:#34d399; font-family:'JetBrains Mono', monospace;" id="stats-unique-count">0</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Total Raw Hits</div>
+              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace;" id="stats-scan-count">0</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Customer Cap</div>
+              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace;" id="stats-max-scans">Unlimited</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Design Style</div>
+              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace; text-transform:capitalize;" id="stats-design">-</div>
+            </div>
+          </div>
+          <div style="margin-top:0.85rem; font-size:0.8rem; color:var(--text-muted); word-break:break-all;">
+            Target: <a id="stats-target-link" href="#" target="_blank" style="color:#a5b4fc;"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Auth Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:0.5rem; color:#fff;">Admin Access Key</h3>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">Enter your Admin Key to authorize QR creation & batch uploads.</p>
+      <input type="password" id="admin-key-input" placeholder="Enter Admin Key" style="margin-bottom:1rem;" />
+      <div style="display:flex; gap:0.5rem;">
+        <button type="button" class="btn-submit" style="flex:1;" onclick="saveAdminKey()">Save Key</button>
+        <button type="button" class="btn-action btn-test" onclick="closeAuthModal()">Close</button>
       </div>
     </div>
   </div>
@@ -633,22 +947,64 @@ export function renderHomePage(): string {
   <div id="toast" class="toast">Copied to clipboard!</div>
 
   <script>
-    let currentRawSvg = '';
+    let generatedBatchItems = [];
 
-    // Style selector buttons
-    const designBtns = document.querySelectorAll('.design-btn');
-    const designInput = document.getElementById('design');
-    designBtns.forEach(btn => {
+    // Admin Key Management
+    function getStoredAdminKey() {
+      return localStorage.getItem('qr_admin_key') || 'qrforge-admin-secret-2026';
+    }
+
+    function openAuthModal() {
+      document.getElementById('admin-key-input').value = getStoredAdminKey();
+      document.getElementById('auth-modal').classList.add('show');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.remove('show');
+    }
+
+    function saveAdminKey() {
+      const key = document.getElementById('admin-key-input').value.trim();
+      if (key) {
+        localStorage.setItem('qr_admin_key', key);
+        showToast('Admin key saved successfully!');
+      }
+      closeAuthModal();
+    }
+
+    // Tabs logic
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        designBtns.forEach(b => b.classList.remove('active'));
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabPanes.forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
-        designInput.value = btn.dataset.style;
+        document.getElementById(btn.dataset.tab).classList.add('active');
       });
     });
 
-    // Form submission
-    const form = document.getElementById('create-form');
-    const submitBtn = document.getElementById('submit-btn');
+    // Style picker logic for single & bulk
+    document.querySelectorAll('.design-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const formType = btn.dataset.form;
+        document.querySelectorAll(\`.design-btn[data-form="\${formType}"]\`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(\`\${formType}-design\`).value = btn.dataset.style;
+      });
+    });
+
+    // Toast helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // Single QR submission
+    const singleForm = document.getElementById('create-form');
+    const singleSubmitBtn = document.getElementById('submit-btn');
     const qrBox = document.getElementById('qr-box');
     const outputDetails = document.getElementById('output-details');
     const shortUrlDisplay = document.getElementById('short-url-display');
@@ -656,31 +1012,28 @@ export function renderHomePage(): string {
     const downloadBtn = document.getElementById('download-btn');
     const testBtn = document.getElementById('test-btn');
     const statusBadge = document.getElementById('status-badge');
-    const scansDisplay = document.getElementById('scans-display');
-    const toast = document.getElementById('toast');
+    const uniqueScansDisplay = document.getElementById('unique-scans-display');
+    const rawScansDisplay = document.getElementById('raw-scans-display');
 
-    function showToast(msg) {
-      toast.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
-    }
-
-    form.addEventListener('submit', async (e) => {
+    singleForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const target_url = document.getElementById('target_url').value.trim();
-      const design = designInput.value;
+      const design = document.getElementById('single-design').value;
       const max_scans_val = document.getElementById('max_scans').value.trim();
       const max_scans = max_scans_val ? parseInt(max_scans_val, 10) : null;
 
       if (!target_url) return;
 
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = 'Generating...';
+      singleSubmitBtn.disabled = true;
+      singleSubmitBtn.innerHTML = 'Generating...';
 
       try {
         const res = await fetch('/api/create', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Admin-Key': getStoredAdminKey()
+          },
           body: JSON.stringify({ target_url, design, max_scans })
         });
 
@@ -690,39 +1043,242 @@ export function renderHomePage(): string {
         }
 
         const data = await res.json();
-        currentRawSvg = data.qr_svg;
-
-        // Render SVG preview
         qrBox.innerHTML = data.qr_svg;
         outputDetails.style.display = 'block';
         shortUrlDisplay.textContent = data.short_url;
         testBtn.href = data.short_url;
 
-        // Download data URI
         const blobUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(data.qr_svg);
         downloadBtn.href = blobUri;
         downloadBtn.setAttribute('download', 'qr-' + data.id + '.svg');
 
-        // Status badge
         statusBadge.textContent = 'Active';
         statusBadge.className = 'status-badge status-active';
-        scansDisplay.textContent = '0 / ' + (max_scans ? max_scans : '∞');
+        uniqueScansDisplay.textContent = '0 / ' + (max_scans ? max_scans : '∞');
+        rawScansDisplay.textContent = '0';
 
-        showToast('QR Code Generated Successfully!');
+        showToast('Dynamic QR Code Generated!');
       } catch (err) {
         alert(err.message || 'Error creating QR code');
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Generate QR Code';
+        singleSubmitBtn.disabled = false;
+        singleSubmitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Generate QR Code';
       }
     });
 
-    // Copy short link
     copyBtn.addEventListener('click', async () => {
       const url = shortUrlDisplay.textContent;
       if (url && url !== 'https://...') {
         await navigator.clipboard.writeText(url);
         showToast('Short URL copied to clipboard!');
+      }
+    });
+
+    // Helper: Extract valid URLs from text
+    function extractUrlsFromText(text) {
+      const lines = text.split(/\\r?\\n/);
+      const urls = [];
+      for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+        const matches = line.match(/https?:\\/\\/[^\\s"'>]+/gi);
+        if (matches) {
+          urls.push(...matches);
+        } else if (line.startsWith('http://') || line.startsWith('https://')) {
+          urls.push(line);
+        }
+      }
+      return [...new Set(urls)]; // unique list
+    }
+
+    // Dropzone & File parsing
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    const fileNameSpan = document.getElementById('file-name');
+    const detectedCountSpan = document.getElementById('detected-count');
+    const bulkUrlsInput = document.getElementById('bulk-urls-input');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    async function handleFile(file) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      fileNameSpan.textContent = file.name;
+      fileInfo.style.display = 'inline-flex';
+
+      if (ext === 'docx') {
+        if (typeof mammoth === 'undefined') {
+          alert('Mammoth.js library is loading, please try again in a second.');
+          return;
+        }
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        const urls = extractUrlsFromText(result.value);
+        bulkUrlsInput.value = urls.join('\\n');
+        detectedCountSpan.textContent = urls.length + ' URLs detected';
+        showToast(\`Extracted \${urls.length} URLs from \${file.name}\`);
+      } else {
+        // Plain text (.txt or similar)
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target.result;
+          const urls = extractUrlsFromText(text);
+          bulkUrlsInput.value = urls.join('\\n');
+          detectedCountSpan.textContent = urls.length + ' URLs detected';
+          showToast(\`Extracted \${urls.length} URLs from \${file.name}\`);
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    // Bulk creation submission
+    const bulkSubmitBtn = document.getElementById('bulk-submit-btn');
+    const bulkResultsPanel = document.getElementById('bulk-results-panel');
+    const bulkTableBody = document.getElementById('bulk-table-body');
+    const batchTotalCount = document.getElementById('batch-total-count');
+    const downloadZipBtn = document.getElementById('download-zip-btn');
+
+    bulkSubmitBtn.addEventListener('click', async () => {
+      const rawText = bulkUrlsInput.value;
+      const urls = extractUrlsFromText(rawText);
+
+      if (urls.length === 0) {
+        alert('Please enter or import at least one valid HTTP/HTTPS URL.');
+        return;
+      }
+
+      if (urls.length > 500) {
+        alert('Maximum batch size is 500 URLs per run. Please split into smaller batches.');
+        return;
+      }
+
+      const design = document.getElementById('bulk-design').value;
+      bulkSubmitBtn.disabled = true;
+      bulkSubmitBtn.innerHTML = 'Generating ' + urls.length + ' QR Codes...';
+
+      try {
+        const res = await fetch('/api/bulk-create', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Admin-Key': getStoredAdminKey()
+          },
+          body: JSON.stringify({ urls, design })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Batch creation failed');
+        }
+
+        const data = await res.json();
+        generatedBatchItems = data.items;
+
+        batchTotalCount.textContent = data.items.length;
+        bulkTableBody.innerHTML = '';
+
+        data.items.forEach((item, index) => {
+          const tr = document.createElement('tr');
+          const cleanSvgBlob = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(item.qr_svg);
+          tr.innerHTML = \`
+            <td style="font-weight:700; color:var(--text-muted);">\${index + 1}</td>
+            <td>
+              <div class="table-thumb">\${item.qr_svg}</div>
+            </td>
+            <td style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              <a href="\${item.target_url}" target="_blank" style="color:#f8fafc; text-decoration:none;">\${item.target_url}</a>
+            </td>
+            <td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:#38bdf8;">
+              \${item.short_url}
+            </td>
+            <td style="text-align:right; white-space:nowrap;">
+              <a href="\${cleanSvgBlob}" download="qr-\${index + 1}-\${item.id}.svg" class="copy-btn" style="text-decoration:none; margin-right:4px;">Download</a>
+              <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('\${item.short_url}'); showToast('Copied link #\${index + 1}');">Copy</button>
+            </td>
+          \`;
+          bulkTableBody.appendChild(tr);
+        });
+
+        bulkResultsPanel.style.display = 'block';
+        bulkResultsPanel.scrollIntoView({ behavior: 'smooth' });
+        showToast(\`Successfully created \${data.items.length} lifetime QR codes!\`);
+      } catch (err) {
+        alert(err.message || 'Error processing batch');
+      } finally {
+        bulkSubmitBtn.disabled = false;
+        bulkSubmitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate Batch QR Codes';
+      }
+    });
+
+    // Helper: Slugify string
+    function slugify(text) {
+      return text.toLowerCase().replace(/^https?:\\/\\//, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 30) || 'qr';
+    }
+
+    // Batch ZIP Download
+    downloadZipBtn.addEventListener('click', async () => {
+      if (!generatedBatchItems || generatedBatchItems.length === 0) return;
+
+      if (typeof JSZip === 'undefined') {
+        alert('JSZip is loading, please try again.');
+        return;
+      }
+
+      downloadZipBtn.disabled = true;
+      downloadZipBtn.innerHTML = 'Zipping files...';
+
+      try {
+        const zip = new JSZip();
+        const svgFolder = zip.folder('qr-codes');
+        let csvContent = 'Index,ID,Target_URL,Short_Tracking_URL,Filename\\n';
+
+        generatedBatchItems.forEach((item, index) => {
+          const num = index + 1;
+          const slug = slugify(item.target_url);
+          const filename = \`\${num}-\${slug}.svg\`;
+          svgFolder.file(filename, item.qr_svg);
+          csvContent += \`"\${num}","\${item.id}","\${item.target_url.replace(/"/g, '""')}","\${item.short_url}","\${filename}"\\n\`;
+        });
+
+        zip.file('mapping.csv', csvContent);
+
+        const content = await zip.generateAsync({ type: 'blob' });
+        const downloadUrl = URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = \`qr-forge-batch-\${Date.now()}.zip\`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadUrl);
+
+        showToast('ZIP Archive Downloaded Successfully!');
+      } catch (err) {
+        alert('Failed to generate ZIP: ' + err.message);
+      } finally {
+        downloadZipBtn.disabled = false;
+        downloadZipBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download All as ZIP (SVGs + CSV)';
       }
     });
 
@@ -735,7 +1291,6 @@ export function renderHomePage(): string {
       let rawId = statsIdInput.value.trim();
       if (!rawId) return;
 
-      // Clean ID if full URL pasted
       if (rawId.includes('/r/')) {
         rawId = rawId.split('/r/').pop().split('?')[0].split('#')[0];
       } else if (rawId.includes('/stats/')) {
@@ -756,10 +1311,10 @@ export function renderHomePage(): string {
         badge.textContent = data.status;
         badge.className = 'status-badge ' + (data.status === 'active' ? 'status-active' : 'status-inactive');
 
-        document.getElementById('stats-scan-count').textContent = data.scan_count;
-        document.getElementById('stats-max-scans').textContent = data.max_scans ? data.max_scans : 'Unlimited';
+        document.getElementById('stats-unique-count').textContent = data.unique_scan_count || 0;
+        document.getElementById('stats-scan-count').textContent = data.scan_count || 0;
+        document.getElementById('stats-max-scans').textContent = data.max_scans ? data.max_scans : 'Unlimited (Lifetime)';
         document.getElementById('stats-design').textContent = data.design || 'classic';
-        document.getElementById('stats-created').textContent = new Date(data.created_at).toLocaleDateString();
         
         const targetLink = document.getElementById('stats-target-link');
         targetLink.href = data.target_url;
@@ -857,7 +1412,7 @@ export function renderInactivePage(reason = 'This QR code is no longer active'):
       </svg>
     </div>
     <h1>QR Code Inactive</h1>
-    <p>${reason}. The scan limit has been reached or this code has been deactivated by the organizer.</p>
+    <p>${reason}. The unique customer scan limit has been reached or this campaign has ended.</p>
     <a href="/" class="btn">Go to QR Forge</a>
   </div>
 </body>
@@ -871,7 +1426,6 @@ export function renderNotFoundPage(): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invalid QR Code — QR Forge</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>

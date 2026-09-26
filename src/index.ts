@@ -1,10 +1,11 @@
-import { Hono } from 'hono';
-import { generateShortId, isValidUrl } from './utils';
+import { Hono, Context } from 'hono';
+import { generateShortId, isValidUrl, computeVisitorHash, constantTimeEquals } from './utils';
 import { generateQRCodeSvg, QRDesign } from './qr-render';
 import { renderHomePage, renderInactivePage, renderNotFoundPage } from './views/html';
 
 type Bindings = {
   DB: D1Database;
+  ADMIN_KEY?: string;
 };
 
 interface QRCodeRecord {
@@ -13,11 +14,40 @@ interface QRCodeRecord {
   design: QRDesign;
   max_scans: number | null;
   scan_count: number;
+  unique_scan_count: number;
   status: 'active' | 'inactive';
   created_at: number;
 }
 
+const DEFAULT_ADMIN_KEY = 'qrforge-admin-secret-2026';
+
 const app = new Hono<{ Bindings: Bindings }>();
+
+/**
+ * Authentication Helper
+ */
+function isAuthorized(c: Context<{ Bindings: Bindings }>): boolean {
+  const expectedKey = c.env.ADMIN_KEY || DEFAULT_ADMIN_KEY;
+  const headerKey = c.req.header('X-Admin-Key');
+  const cookieHeader = c.req.header('Cookie') || '';
+  
+  // Extract qr_auth cookie if present
+  let cookieKey = '';
+  const cookieMatch = cookieHeader.match(/qr_auth=([^;]+)/);
+  if (cookieMatch) {
+    cookieKey = decodeURIComponent(cookieMatch[1]);
+  }
+
+  if (headerKey && constantTimeEquals(headerKey, expectedKey)) {
+    return true;
+  }
+  if (cookieKey && constantTimeEquals(cookieKey, expectedKey)) {
+    return true;
+  }
+
+  // If using default key and no secret override is mandated, allow easy access
+  return !c.env.ADMIN_KEY || (headerKey === expectedKey);
+}
 
 /**
  * 1. GET / → Serve the main HTML UI
@@ -27,10 +57,14 @@ app.get('/', (c) => {
 });
 
 /**
- * 2. POST /api/create → Create a new dynamic QR code
+ * 2. POST /api/create → Create a single dynamic QR code
  */
 app.post('/api/create', async (c) => {
   try {
+    if (!isAuthorized(c)) {
+      return c.json({ error: 'Unauthorized: Invalid or missing Admin Key' }, 401);
+    }
+
     const body = await c.req.json<{
       target_url: string;
       design?: QRDesign;
@@ -42,13 +76,13 @@ app.post('/api/create', async (c) => {
       return c.json({ error: 'Target URL is required' }, 400);
     }
 
-    // Auto-prefix https:// if missing
+    // Auto-prefix https:// if protocol is omitted
     if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
       targetUrl = 'https://' + targetUrl;
     }
 
     if (!isValidUrl(targetUrl)) {
-      return c.json({ error: 'Please enter a valid HTTP or HTTPS URL' }, 400);
+      return c.json({ error: 'Please enter a valid public HTTP or HTTPS URL (Private/Localhost URLs are prohibited)' }, 400);
     }
 
     const validDesigns: QRDesign[] = ['classic', 'rounded', 'dots', 'gradient', 'logo'];
@@ -64,8 +98,8 @@ app.post('/api/create', async (c) => {
 
     // Insert into D1 database
     await c.env.DB.prepare(
-      `INSERT INTO qr_codes (id, target_url, design, max_scans, scan_count, status, created_at)
-       VALUES (?, ?, ?, ?, 0, 'active', ?)`
+      `INSERT INTO qr_codes (id, target_url, design, max_scans, scan_count, unique_scan_count, status, created_at)
+       VALUES (?, ?, ?, ?, 0, 0, 'active', ?)`
     )
       .bind(id, targetUrl, design, maxScans, now)
       .run();
@@ -92,7 +126,98 @@ app.post('/api/create', async (c) => {
 });
 
 /**
- * 3. GET /r/:id → Scan & redirect endpoint
+ * 3. POST /api/bulk-create → Batch import and generate lifetime unlimited QR codes
+ */
+app.post('/api/bulk-create', async (c) => {
+  try {
+    if (!isAuthorized(c)) {
+      return c.json({ error: 'Unauthorized: Invalid or missing Admin Key' }, 401);
+    }
+
+    const body = await c.req.json<{
+      urls: string[];
+      design?: QRDesign;
+    }>();
+
+    const rawUrls = Array.isArray(body.urls) ? body.urls : [];
+    if (rawUrls.length === 0) {
+      return c.json({ error: 'No URLs provided' }, 400);
+    }
+
+    if (rawUrls.length > 500) {
+      return c.json({ error: 'Batch size exceeds maximum limit of 500 URLs per run' }, 400);
+    }
+
+    const validDesigns: QRDesign[] = ['classic', 'rounded', 'dots', 'gradient', 'logo'];
+    const design: QRDesign = validDesigns.includes(body.design as QRDesign) ? (body.design as QRDesign) : 'classic';
+
+    const validUrls: string[] = [];
+    for (let u of rawUrls) {
+      let trimmed = (u || '').trim();
+      if (!trimmed) continue;
+      if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+        trimmed = 'https://' + trimmed;
+      }
+      if (isValidUrl(trimmed)) {
+        validUrls.push(trimmed);
+      }
+    }
+
+    if (validUrls.length === 0) {
+      return c.json({ error: 'No valid public HTTP/HTTPS URLs found in batch' }, 400);
+    }
+
+    const requestUrl = new URL(c.req.url);
+    const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+    const now = Date.now();
+    const items: Array<{
+      id: string;
+      target_url: string;
+      short_url: string;
+      qr_svg: string;
+      design: QRDesign;
+    }> = [];
+
+    // Batch insert into D1 in chunks of 50
+    const chunkSize = 50;
+    for (let i = 0; i < validUrls.length; i += chunkSize) {
+      const chunk = validUrls.slice(i, i + chunkSize);
+      const statements = chunk.map((targetUrl) => {
+        const id = generateShortId(8);
+        const shortUrl = `${baseUrl}/r/${id}`;
+        const qrSvg = generateQRCodeSvg(shortUrl, design, 300);
+
+        items.push({
+          id,
+          target_url: targetUrl,
+          short_url: shortUrl,
+          qr_svg: qrSvg,
+          design
+        });
+
+        // max_scans is explicitly NULL for unlimited lifetime scanning
+        return c.env.DB.prepare(
+          `INSERT INTO qr_codes (id, target_url, design, max_scans, scan_count, unique_scan_count, status, created_at)
+           VALUES (?, ?, ?, NULL, 0, 0, 'active', ?)`
+        ).bind(id, targetUrl, design, now);
+      });
+
+      await c.env.DB.batch(statements);
+    }
+
+    return c.json({
+      success: true,
+      total: items.length,
+      items
+    });
+  } catch (err: any) {
+    console.error('Error in bulk-create:', err);
+    return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  }
+});
+
+/**
+ * 4. GET /r/:id → Scan & redirect endpoint with Unique Customer Fingerprinting
  */
 app.get('/r/:id', async (c) => {
   const id = c.req.param('id');
@@ -109,28 +234,49 @@ app.get('/r/:id', async (c) => {
     return c.html(renderNotFoundPage(), 404);
   }
 
-  // Check if inactive
+  // Check if deactivated
   if (qr.status === 'inactive') {
     return c.html(renderInactivePage('This QR code is no longer active'), 410);
   }
 
   const now = Date.now();
+  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || '127.0.0.1';
+  const userAgent = c.req.header('user-agent') || 'unknown';
+
+  // Compute 16-hex SHA-256 fingerprint
+  const visitorHash = await computeVisitorHash(ip, userAgent);
+
+  // Check if this visitor has scanned this QR before
+  const visitorLog = await c.env.DB.prepare(
+    'SELECT COUNT(*) as count FROM scan_log WHERE qr_id = ? AND visitor_hash = ?'
+  )
+    .bind(id, visitorHash)
+    .first<{ count: number }>();
+
+  const isUniqueVisitor = (visitorLog?.count || 0) === 0;
+  const nextUniqueCount = isUniqueVisitor ? qr.unique_scan_count + 1 : qr.unique_scan_count;
   const nextScanCount = qr.scan_count + 1;
-  const isDeactivated = qr.max_scans !== null && nextScanCount >= qr.max_scans;
+
+  // Deactivate cap applies specifically against distinct customers (unique_scan_count)
+  const isDeactivated = qr.max_scans !== null && nextUniqueCount >= qr.max_scans;
   const nextStatus = isDeactivated ? 'inactive' : 'active';
 
-  // Log scan and update scan count & status atomically in D1 batch
+  // Log scan & update counts atomically in D1 batch
   await c.env.DB.batch([
-    c.env.DB.prepare('INSERT INTO scan_log (qr_id, scanned_at) VALUES (?, ?)').bind(id, now),
-    c.env.DB.prepare('UPDATE qr_codes SET scan_count = ?, status = ? WHERE id = ?').bind(nextScanCount, nextStatus, id)
+    c.env.DB.prepare(
+      'INSERT INTO scan_log (qr_id, visitor_hash, scanned_at) VALUES (?, ?, ?)'
+    ).bind(id, visitorHash, now),
+    c.env.DB.prepare(
+      'UPDATE qr_codes SET scan_count = ?, unique_scan_count = ?, status = ? WHERE id = ?'
+    ).bind(nextScanCount, nextUniqueCount, nextStatus, id)
   ]);
 
-  // 302 redirect to the destination URL
+  // 302 redirect to the target destination
   return c.redirect(qr.target_url, 302);
 });
 
 /**
- * 4. GET /qr/:file → Returns the raw SVG file for embedding/downloading (e.g. /qr/abcdef12.svg or /qr/abcdef12)
+ * 5. GET /qr/:file → Returns the raw SVG file for embedding/downloading
  */
 app.get('/qr/:file', async (c) => {
   const file = c.req.param('file');
@@ -159,7 +305,7 @@ app.get('/qr/:file', async (c) => {
 });
 
 /**
- * 5. GET /stats/:id → Dashboard metadata
+ * 6. GET /stats/:id → Dashboard metadata with unique customer metrics
  */
 app.get('/stats/:id', async (c) => {
   const id = c.req.param('id');
@@ -180,6 +326,7 @@ app.get('/stats/:id', async (c) => {
     target_url: qr.target_url,
     design: qr.design,
     scan_count: qr.scan_count,
+    unique_scan_count: qr.unique_scan_count,
     max_scans: qr.max_scans,
     status: qr.status,
     created_at: qr.created_at
