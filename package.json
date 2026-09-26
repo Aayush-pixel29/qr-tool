@@ -1,0 +1,27 @@
+{
+  "name": "qr-tool",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "d1:create": "wrangler d1 create qr_forge_db",
+    "d1:migrate:local": "wrangler d1 execute qr_forge_db --local --file=migrations/0001_init.sql",
+    "d1:migrate:remote": "wrangler d1 execute qr_forge_db --remote --file=migrations/0001_init.sql",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "hono": "^4.13.9",
+    "nanoid": "^6.0.1",
+    "qrcode-generator": "^2.0.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260926.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.141.0"
+  }
+}
