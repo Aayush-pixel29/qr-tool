@@ -4,8 +4,8 @@ export function renderHomePage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Forge — Dynamic QR Codes with Direct Copy & Bulk Generator</title>
-  <meta name="description" content="Dynamic QR Code generator with real-time customer tracking, 1-click clipboard image copy, batch .txt/.docx processing, and ZIP export.">
+  <title>QR Forge — Professional Dynamic QR Code & Batch Studio</title>
+  <meta name="description" content="Generate high-reliability dynamic QR codes with 1-click clipboard image copy, batch .txt/.docx processing, unique customer tracking, and ZIP export.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -16,9 +16,9 @@ export function renderHomePage(): string {
   
   <style>
     :root {
-      --bg-dark: #090d16;
-      --card-bg: rgba(18, 24, 38, 0.88);
-      --card-border: rgba(255, 255, 255, 0.09);
+      --bg-dark: #080c14;
+      --card-bg: rgba(15, 23, 42, 0.82);
+      --card-border: rgba(255, 255, 255, 0.08);
       --primary: #6366f1;
       --primary-hover: #4f46e5;
       --accent: #ec4899;
@@ -27,7 +27,7 @@ export function renderHomePage(): string {
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --input-bg: rgba(15, 23, 42, 0.75);
+      --input-bg: rgba(10, 15, 29, 0.7);
     }
 
     * {
@@ -46,28 +46,23 @@ export function renderHomePage(): string {
       align-items: center;
       padding: 2rem 1rem 5rem;
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.16) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.13) 0%, transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 60%);
+        radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.14) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.06) 0%, transparent 60%);
       background-attachment: fixed;
     }
 
     .container {
       width: 100%;
-      max-width: 1120px;
+      max-width: 1080px;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-      position: relative;
-    }
-
+    /* Top Navigation Bar */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       flex-wrap: wrap;
       gap: 0.75rem;
     }
@@ -76,10 +71,10 @@ export function renderHomePage(): string {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.35rem 0.85rem;
+      padding: 0.4rem 0.9rem;
       border-radius: 9999px;
-      background: rgba(99, 102, 241, 0.14);
-      border: 1px solid rgba(99, 102, 241, 0.35);
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.3);
       color: #818cf8;
       font-size: 0.85rem;
       font-weight: 600;
@@ -90,7 +85,7 @@ export function renderHomePage(): string {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.35rem 0.85rem;
+      padding: 0.4rem 0.9rem;
       border-radius: 9999px;
       background: rgba(16, 185, 129, 0.12);
       border: 1px solid rgba(16, 185, 129, 0.3);
@@ -102,13 +97,18 @@ export function renderHomePage(): string {
     }
 
     .auth-badge:hover {
-      background: rgba(16, 185, 129, 0.2);
+      background: rgba(16, 185, 129, 0.22);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.25rem;
     }
 
     h1 {
-      font-size: 2.75rem;
+      font-size: 2.85rem;
       font-weight: 800;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.035em;
       line-height: 1.15;
       margin-bottom: 0.75rem;
       background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, #94a3b8 100%);
@@ -119,18 +119,18 @@ export function renderHomePage(): string {
     .subtitle {
       color: var(--text-muted);
       font-size: 1.05rem;
-      max-width: 680px;
+      max-width: 650px;
       margin: 0 auto;
       line-height: 1.55;
     }
 
-    /* Tabs */
+    /* Tabs Navigation */
     .tabs-nav {
       display: flex;
       justify-content: center;
       gap: 0.5rem;
       margin-bottom: 2rem;
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.65);
       padding: 0.35rem;
       border-radius: 14px;
       border: 1px solid var(--card-border);
@@ -141,7 +141,7 @@ export function renderHomePage(): string {
 
     .tab-btn {
       flex: 1;
-      padding: 0.7rem 1.25rem;
+      padding: 0.75rem 1.25rem;
       background: transparent;
       border: none;
       border-radius: 10px;
@@ -174,20 +174,20 @@ export function renderHomePage(): string {
       display: block;
     }
 
-    /* Cards */
+    /* Layout & Cards */
     .grid-layout {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: 2rem;
       align-items: start;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 880px) {
       .grid-layout {
         grid-template-columns: 1fr;
       }
       h1 {
-        font-size: 2.1rem;
+        font-size: 2.2rem;
       }
     }
 
@@ -880,7 +880,7 @@ export function renderHomePage(): string {
 
         <!-- Right: Preview & Output -->
         <div class="glass-card preview-container">
-          <div class="qr-box" id="qr-box" onclick="openSingleQrInModal()">
+          <div class="qr-box" id="qr-box" onclick="openSingleQrInModal()" title="Click to view fullscreen">
             <div class="placeholder-qr">
               <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="18" height="18" x="3" y="3" rx="2"/>
@@ -899,19 +899,19 @@ export function renderHomePage(): string {
             <!-- Quick Action Buttons -->
             <div class="actions-grid-4">
               <button type="button" class="btn-action btn-copy-qr" onclick="copyCurrentQrImage()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                Copy QR Image
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                Copy Image
               </button>
               <button type="button" class="btn-action btn-view" onclick="openSingleQrInModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                View Fullscreen
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                View
               </button>
               <a id="download-btn" class="btn-action btn-download" download="qr-code.svg">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Download SVG
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                SVG
               </a>
               <a id="test-btn" class="btn-action btn-test" target="_blank" rel="noopener noreferrer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 Test Scan
               </a>
             </div>
@@ -1140,7 +1140,6 @@ export function renderHomePage(): string {
     let currentLookupId = null;
     let currentLookupStatus = 'active';
 
-    // Admin Key Management
     function getStoredAdminKey() {
       return localStorage.getItem('qr_admin_key') || 'qrforge-admin-secret-2026';
     }
@@ -1163,7 +1162,6 @@ export function renderHomePage(): string {
       closeAuthModal();
     }
 
-    // Modal view handlers
     function openViewModal(svgStr, shortUrl, targetUrl, id) {
       activeModalSvg = svgStr;
       document.getElementById('modal-qr-container').innerHTML = svgStr;
@@ -1216,7 +1214,6 @@ export function renderHomePage(): string {
               ]);
               showToast('QR Image Copied! Ready to paste (Ctrl+V) anywhere.');
             } catch (err) {
-              // Fallback to text copy
               await navigator.clipboard.writeText(svgString);
               showToast('SVG Markup Copied to Clipboard!');
             }
@@ -1528,7 +1525,7 @@ export function renderHomePage(): string {
               </div>
             </td>
             <td style="text-align:right; white-space:nowrap;">
-              <button type="button" class="copy-btn" style="background:rgba(236,72,153,0.15); border-color:rgba(236,72,153,0.3); color:#f472b6; margin-right:4px;" onclick="copyBatchItemImage(\${index})">📋 Copy QR</button>
+              <button type="button" class="copy-btn" style="background:rgba(236,72,153,0.15); border-color:rgba(236,72,153,0.3); color:#f472b6; margin-right:4px;" onclick="copyBatchItemImage(\${index})">📋 Copy</button>
               <button type="button" class="copy-btn" style="margin-right:4px;" onclick="openBatchItemModal(\${index})">👁️ View</button>
               <a href="\${cleanSvgBlob}" download="qr-\${index + 1}-\${item.id}.svg" class="copy-btn" style="text-decoration:none; margin-right:4px;">⬇️ SVG</a>
               <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('\${item.short_url}'); showToast('Copied link #\${index + 1}');">🔗</button>
@@ -1714,7 +1711,7 @@ export function renderHomePage(): string {
 </html>`;
 }
 
-export function renderInactivePage(reason = 'This QR code is no longer active'): string {
+export function renderInactivePage(reason = 'This QR code is currently paused or inactive'): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1727,7 +1724,7 @@ export function renderInactivePage(reason = 'This QR code is no longer active'):
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #090d16;
+      background: #080c14;
       color: #f8fafc;
       min-height: 100vh;
       display: flex;
@@ -1738,7 +1735,7 @@ export function renderInactivePage(reason = 'This QR code is no longer active'):
       background-image: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.12) 0%, transparent 60%);
     }
     .card {
-      background: rgba(18, 24, 38, 0.9);
+      background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(239, 68, 68, 0.25);
       border-radius: 20px;
@@ -1815,7 +1812,7 @@ export function renderNotFoundPage(): string {
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #090d16;
+      background: #080c14;
       color: #f8fafc;
       min-height: 100vh;
       display: flex;
@@ -1825,7 +1822,7 @@ export function renderNotFoundPage(): string {
       margin: 0;
     }
     .card {
-      background: rgba(18, 24, 38, 0.9);
+      background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       padding: 2.5rem 2rem;

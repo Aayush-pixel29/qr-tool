@@ -24,14 +24,24 @@ const DEFAULT_ADMIN_KEY = 'qrforge-admin-secret-2026';
 const app = new Hono<{ Bindings: Bindings }>();
 
 /**
+ * Global Security Headers Middleware
+ */
+app.use('*', async (c, next) => {
+  await next();
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Frame-Options', 'DENY');
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  c.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+});
+
+/**
  * Authentication Helper
  */
 function isAuthorized(c: Context<{ Bindings: Bindings }>): boolean {
   const expectedKey = c.env.ADMIN_KEY || DEFAULT_ADMIN_KEY;
-  const headerKey = c.req.header('X-Admin-Key');
+  const headerKey = c.req.header('X-Admin-Key') || '';
   const cookieHeader = c.req.header('Cookie') || '';
   
-  // Extract qr_auth cookie if present
   let cookieKey = '';
   const cookieMatch = cookieHeader.match(/qr_auth=([^;]+)/);
   if (cookieMatch) {
@@ -45,7 +55,6 @@ function isAuthorized(c: Context<{ Bindings: Bindings }>): boolean {
     return true;
   }
 
-  // If using default key and no secret override is mandated, allow easy access
   return !c.env.ADMIN_KEY || (headerKey === expectedKey);
 }
 
@@ -76,7 +85,6 @@ app.post('/api/create', async (c) => {
       return c.json({ error: 'Target URL is required' }, 400);
     }
 
-    // Auto-prefix https:// if protocol is omitted
     if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
       targetUrl = 'https://' + targetUrl;
     }
@@ -96,7 +104,6 @@ app.post('/api/create', async (c) => {
     const id = generateShortId(8);
     const now = Date.now();
 
-    // Insert into D1 database
     await c.env.DB.prepare(
       `INSERT INTO qr_codes (id, target_url, design, max_scans, scan_count, unique_scan_count, status, created_at)
        VALUES (?, ?, ?, ?, 0, 0, 'active', ?)`
@@ -104,11 +111,8 @@ app.post('/api/create', async (c) => {
       .bind(id, targetUrl, design, maxScans, now)
       .run();
 
-    // Build the short redirect URL encoded inside the QR
     const requestUrl = new URL(c.req.url);
     const shortUrl = `${requestUrl.protocol}//${requestUrl.host}/r/${id}`;
-
-    // Render SVG immediately
     const qrSvg = generateQRCodeSvg(shortUrl, design, 300);
 
     return c.json({
@@ -178,7 +182,6 @@ app.post('/api/bulk-create', async (c) => {
       design: QRDesign;
     }> = [];
 
-    // Batch insert into D1 in chunks of 50
     const chunkSize = 50;
     for (let i = 0; i < validUrls.length; i += chunkSize) {
       const chunk = validUrls.slice(i, i + chunkSize);
@@ -225,7 +228,6 @@ app.get('/r/:id', async (c) => {
     return c.html(renderNotFoundPage(), 404);
   }
 
-  // Look up QR in D1
   const qr = await c.env.DB.prepare('SELECT * FROM qr_codes WHERE id = ?')
     .bind(id)
     .first<QRCodeRecord>();
@@ -234,19 +236,16 @@ app.get('/r/:id', async (c) => {
     return c.html(renderNotFoundPage(), 404);
   }
 
-  // Check if deactivated
   if (qr.status === 'inactive') {
-    return c.html(renderInactivePage('This QR code is no longer active'), 410);
+    return c.html(renderInactivePage('This QR code is currently paused or inactive'), 410);
   }
 
   const now = Date.now();
   const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || '127.0.0.1';
   const userAgent = c.req.header('user-agent') || 'unknown';
 
-  // Compute 16-hex SHA-256 fingerprint
   const visitorHash = await computeVisitorHash(ip, userAgent);
 
-  // Check if this visitor has scanned this QR before
   const visitorLog = await c.env.DB.prepare(
     'SELECT COUNT(*) as count FROM scan_log WHERE qr_id = ? AND visitor_hash = ?'
   )
@@ -257,11 +256,9 @@ app.get('/r/:id', async (c) => {
   const nextUniqueCount = isUniqueVisitor ? qr.unique_scan_count + 1 : qr.unique_scan_count;
   const nextScanCount = qr.scan_count + 1;
 
-  // Deactivate cap applies specifically against distinct customers (unique_scan_count)
   const isDeactivated = qr.max_scans !== null && nextUniqueCount >= qr.max_scans;
   const nextStatus = isDeactivated ? 'inactive' : 'active';
 
-  // Log scan & update counts atomically in D1 batch
   await c.env.DB.batch([
     c.env.DB.prepare(
       'INSERT INTO scan_log (qr_id, visitor_hash, scanned_at) VALUES (?, ?, ?)'
@@ -271,7 +268,6 @@ app.get('/r/:id', async (c) => {
     ).bind(nextScanCount, nextUniqueCount, nextStatus, id)
   ]);
 
-  // 302 redirect to the target destination
   return c.redirect(qr.target_url, 302);
 });
 
@@ -332,6 +328,7 @@ app.get('/stats/:id', async (c) => {
     created_at: qr.created_at
   });
 });
+
 /**
  * 7. POST /api/toggle/:id → Manually toggle or set QR code active/inactive status
  */
