@@ -5,5 +5,5 @@ compatibility_date = "2026-09-26"
 [[d1_databases]]
 binding = "DB"
 database_name = "qr_forge_db"
-database_id = "local-d1-qr-forge"
+database_id = "8685a79c-2f1e-4441-9a46-bce93ff77343"
 migrations_dir = "migrations"
