@@ -332,5 +332,53 @@ app.get('/stats/:id', async (c) => {
     created_at: qr.created_at
   });
 });
+/**
+ * 7. POST /api/toggle/:id → Manually toggle or set QR code active/inactive status
+ */
+app.post('/api/toggle/:id', async (c) => {
+  try {
+    if (!isAuthorized(c)) {
+      return c.json({ error: 'Unauthorized: Invalid or missing Admin Key' }, 401);
+    }
+
+    const id = c.req.param('id');
+    if (!id) {
+      return c.json({ error: 'QR ID is required' }, 400);
+    }
+
+    const qr = await c.env.DB.prepare('SELECT id, status FROM qr_codes WHERE id = ?')
+      .bind(id)
+      .first<{ id: string; status: 'active' | 'inactive' }>();
+
+    if (!qr) {
+      return c.json({ error: 'QR code not found' }, 404);
+    }
+
+    let nextStatus: 'active' | 'inactive';
+    try {
+      const body = await c.req.json<{ status?: 'active' | 'inactive' }>();
+      if (body.status === 'active' || body.status === 'inactive') {
+        nextStatus = body.status;
+      } else {
+        nextStatus = qr.status === 'active' ? 'inactive' : 'active';
+      }
+    } catch {
+      nextStatus = qr.status === 'active' ? 'inactive' : 'active';
+    }
+
+    await c.env.DB.prepare('UPDATE qr_codes SET status = ? WHERE id = ?')
+      .bind(nextStatus, id)
+      .run();
+
+    return c.json({
+      success: true,
+      id,
+      status: nextStatus
+    });
+  } catch (err: any) {
+    console.error('Error toggling QR status:', err);
+    return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  }
+});
 
 export default app;

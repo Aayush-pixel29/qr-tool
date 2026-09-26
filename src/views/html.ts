@@ -4,8 +4,8 @@ export function renderHomePage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Forge — Dynamic QR Codes with Unique Customer Tracking & Bulk Generator</title>
-  <meta name="description" content="Dynamic QR Code generator with real-time unique customer tracking, batch .txt/.docx processing, ZIP export, and scan-limit auto-deactivation.">
+  <title>QR Forge — Dynamic QR Codes with Manual Controls & Bulk Batch Generator</title>
+  <meta name="description" content="Dynamic QR Code generator with real-time unique customer tracking, batch .txt/.docx processing, manual active/inactive switches, and ZIP export.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -490,6 +490,7 @@ export function renderHomePage(): string {
       padding-top: 1rem;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       text-align: center;
+      align-items: center;
     }
 
     .meta-val {
@@ -534,6 +535,56 @@ export function renderHomePage(): string {
       margin-top: 0.75rem;
     }
 
+    /* Switch Component */
+    .switch-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .25s ease;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .25s ease;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #10b981;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+
     /* Results Table */
     .results-section {
       margin-top: 2rem;
@@ -573,8 +624,8 @@ export function renderHomePage(): string {
     }
 
     .table-thumb {
-      width: 48px;
-      height: 48px;
+      width: 46px;
+      height: 46px;
       background: #fff;
       border-radius: 8px;
       padding: 4px;
@@ -677,7 +728,7 @@ export function renderHomePage(): string {
 
     <header>
       <h1>QR Forge</h1>
-      <p class="subtitle">Generate high-reliability dynamic QR codes with real-time unique customer tracking, batch file generation, and bulk ZIP export.</p>
+      <p class="subtitle">Generate high-reliability dynamic QR codes with real-time customer tracking, manual active/inactive toggles, and bulk ZIP export.</p>
     </header>
 
     <!-- Navigation Tabs -->
@@ -692,7 +743,7 @@ export function renderHomePage(): string {
       </button>
       <button class="tab-btn" data-tab="analytics-tab">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        Analytics Lookup
+        Analytics & Toggle
       </button>
     </div>
 
@@ -739,7 +790,7 @@ export function renderHomePage(): string {
             <div class="form-group">
               <label for="max_scans">
                 Unique Customer Cap
-                <span class="label-hint">(Optional — auto-deactivates after N distinct customer devices)</span>
+                <span class="label-hint">(Optional — empty for lifetime unlimited)</span>
               </label>
               <input type="number" id="max_scans" name="max_scans" min="1" placeholder="e.g. 500 (empty = lifetime unlimited)" />
             </div>
@@ -783,7 +834,13 @@ export function renderHomePage(): string {
             </div>
 
             <div class="meta-row">
-              <div>Status: <span id="status-badge" class="status-badge status-active">Active</span></div>
+              <div style="display:flex; align-items:center; justify-content:center; gap:0.4rem;">
+                <label class="switch">
+                  <input type="checkbox" id="single-toggle-input" checked onchange="toggleSingleQrStatus(this)" />
+                  <span class="slider"></span>
+                </label>
+                <span id="status-badge" class="status-badge status-active">Active</span>
+              </div>
               <div>Unique: <span id="unique-scans-display" class="meta-val">0 / ∞</span></div>
               <div>Total Hits: <span id="raw-scans-display" class="meta-val">0</span></div>
             </div>
@@ -799,7 +856,7 @@ export function renderHomePage(): string {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
           </svg>
-          Batch Import & Generator (Unlimited Lifetime QRs)
+          Batch Import & Generator (Unlimited Lifetime QRs with Manual Switches)
         </h2>
 
         <!-- Dropzone -->
@@ -858,7 +915,7 @@ export function renderHomePage(): string {
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
             <div>
               <h3 style="font-size:1.15rem; font-weight:700; color:#fff;">Batch Ready (<span id="batch-total-count">0</span> QRs Generated)</h3>
-              <p style="font-size:0.8rem; color:var(--text-muted);">All codes have lifetime unlimited scanning configured.</p>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Lifetime unlimited scans. Use the toggles to pause/resume any QR manually at any time.</p>
             </div>
             <button type="button" class="btn-zip" id="download-zip-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -872,10 +929,11 @@ export function renderHomePage(): string {
             <table>
               <thead>
                 <tr>
-                  <th style="width: 50px;">#</th>
-                  <th style="width: 70px;">QR</th>
+                  <th style="width: 45px;">#</th>
+                  <th style="width: 65px;">QR</th>
                   <th>Destination URL</th>
                   <th>Short Tracking Link</th>
+                  <th style="width: 130px; text-align: center;">Status Switch</th>
                   <th style="width: 120px; text-align: right;">Action</th>
                 </tr>
               </thead>
@@ -893,7 +951,7 @@ export function renderHomePage(): string {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
           </svg>
-          QR Analytics & Unique Customer Lookup
+          QR Analytics & Manual Switch Control
         </h2>
         <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem;">
           <input type="text" id="stats-id-input" placeholder="Enter QR ID (e.g. 8-character ID or full short link)" autocomplete="off" />
@@ -901,9 +959,12 @@ export function renderHomePage(): string {
         </div>
 
         <div class="stats-result" id="stats-result" style="background:rgba(15, 23, 42, 0.5); border:1px solid rgba(255, 255, 255, 0.08); border-radius:12px; padding:1.25rem; display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
             <strong id="stats-id-title" style="font-family:'JetBrains Mono'; color:#38bdf8;"></strong>
-            <span id="stats-status-badge" class="status-badge"></span>
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <span id="stats-status-badge" class="status-badge"></span>
+              <button type="button" class="btn-action btn-test" id="stats-toggle-btn" style="padding:0.35rem 0.75rem; font-size:0.75rem;" onclick="toggleCurrentLookupQr()">Toggle Status</button>
+            </div>
           </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:1rem; margin-top:0.75rem;">
             <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
@@ -915,8 +976,8 @@ export function renderHomePage(): string {
               <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace;" id="stats-scan-count">0</div>
             </div>
             <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Customer Cap</div>
-              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace;" id="stats-max-scans">Unlimited</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Scan Cap</div>
+              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace;" id="stats-max-scans">Unlimited (Lifetime)</div>
             </div>
             <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
               <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Design Style</div>
@@ -948,6 +1009,9 @@ export function renderHomePage(): string {
 
   <script>
     let generatedBatchItems = [];
+    let currentSingleId = null;
+    let currentLookupId = null;
+    let currentLookupStatus = 'active';
 
     // Admin Key Management
     function getStoredAdminKey() {
@@ -1012,6 +1076,7 @@ export function renderHomePage(): string {
     const downloadBtn = document.getElementById('download-btn');
     const testBtn = document.getElementById('test-btn');
     const statusBadge = document.getElementById('status-badge');
+    const singleToggleInput = document.getElementById('single-toggle-input');
     const uniqueScansDisplay = document.getElementById('unique-scans-display');
     const rawScansDisplay = document.getElementById('raw-scans-display');
 
@@ -1043,6 +1108,7 @@ export function renderHomePage(): string {
         }
 
         const data = await res.json();
+        currentSingleId = data.id;
         qrBox.innerHTML = data.qr_svg;
         outputDetails.style.display = 'block';
         shortUrlDisplay.textContent = data.short_url;
@@ -1054,6 +1120,7 @@ export function renderHomePage(): string {
 
         statusBadge.textContent = 'Active';
         statusBadge.className = 'status-badge status-active';
+        singleToggleInput.checked = true;
         uniqueScansDisplay.textContent = '0 / ' + (max_scans ? max_scans : '∞');
         rawScansDisplay.textContent = '0';
 
@@ -1065,6 +1132,31 @@ export function renderHomePage(): string {
         singleSubmitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Generate QR Code';
       }
     });
+
+    // Single QR toggle
+    async function toggleSingleQrStatus(checkbox) {
+      if (!currentSingleId) return;
+      const targetStatus = checkbox.checked ? 'active' : 'inactive';
+      try {
+        const res = await fetch('/api/toggle/' + currentSingleId, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Admin-Key': getStoredAdminKey()
+          },
+          body: JSON.stringify({ status: targetStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          statusBadge.textContent = data.status === 'active' ? 'Active' : 'Inactive';
+          statusBadge.className = 'status-badge ' + (data.status === 'active' ? 'status-active' : 'status-inactive');
+          showToast(\`QR #\${currentSingleId} is now \${data.status.toUpperCase()}\`);
+        }
+      } catch (err) {
+        alert('Failed to toggle status: ' + err.message);
+        checkbox.checked = !checkbox.checked;
+      }
+    }
 
     copyBtn.addEventListener('click', async () => {
       const url = shortUrlDisplay.textContent;
@@ -1088,7 +1180,7 @@ export function renderHomePage(): string {
           urls.push(line);
         }
       }
-      return [...new Set(urls)]; // unique list
+      return [...new Set(urls)];
     }
 
     // Dropzone & File parsing
@@ -1139,7 +1231,6 @@ export function renderHomePage(): string {
         detectedCountSpan.textContent = urls.length + ' URLs detected';
         showToast(\`Extracted \${urls.length} URLs from \${file.name}\`);
       } else {
-        // Plain text (.txt or similar)
         const reader = new FileReader();
         reader.onload = (event) => {
           const text = event.target.result;
@@ -1206,11 +1297,20 @@ export function renderHomePage(): string {
             <td>
               <div class="table-thumb">\${item.qr_svg}</div>
             </td>
-            <td style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
               <a href="\${item.target_url}" target="_blank" style="color:#f8fafc; text-decoration:none;">\${item.target_url}</a>
             </td>
             <td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:#38bdf8;">
               \${item.short_url}
+            </td>
+            <td style="text-align:center;">
+              <div class="switch-wrapper" style="justify-content:center;">
+                <label class="switch">
+                  <input type="checkbox" checked onchange="toggleBatchRowStatus('\${item.id}', this)" />
+                  <span class="slider"></span>
+                </label>
+                <span id="batch-status-label-\${item.id}" style="font-size:0.75rem; font-weight:700; color:#34d399;">Active</span>
+              </div>
             </td>
             <td style="text-align:right; white-space:nowrap;">
               <a href="\${cleanSvgBlob}" download="qr-\${index + 1}-\${item.id}.svg" class="copy-btn" style="text-decoration:none; margin-right:4px;">Download</a>
@@ -1230,6 +1330,33 @@ export function renderHomePage(): string {
         bulkSubmitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate Batch QR Codes';
       }
     });
+
+    // Toggle status for batch row
+    async function toggleBatchRowStatus(id, checkbox) {
+      const targetStatus = checkbox.checked ? 'active' : 'inactive';
+      const label = document.getElementById('batch-status-label-' + id);
+      try {
+        const res = await fetch('/api/toggle/' + id, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Admin-Key': getStoredAdminKey()
+          },
+          body: JSON.stringify({ status: targetStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (label) {
+            label.textContent = data.status === 'active' ? 'Active' : 'Inactive';
+            label.style.color = data.status === 'active' ? '#34d399' : '#f87171';
+          }
+          showToast(\`QR #\${id} is now \${data.status.toUpperCase()}\`);
+        }
+      } catch (err) {
+        alert('Toggle failed: ' + err.message);
+        checkbox.checked = !checkbox.checked;
+      }
+    }
 
     // Helper: Slugify string
     function slugify(text) {
@@ -1304,12 +1431,13 @@ export function renderHomePage(): string {
           throw new Error('QR code with ID "' + rawId + '" was not found.');
         }
         const data = await res.json();
+        currentLookupId = data.id;
+        currentLookupStatus = data.status;
+
         statsResult.style.display = 'block';
         document.getElementById('stats-id-title').textContent = 'ID: ' + data.id;
         
-        const badge = document.getElementById('stats-status-badge');
-        badge.textContent = data.status;
-        badge.className = 'status-badge ' + (data.status === 'active' ? 'status-active' : 'status-inactive');
+        updateLookupBadge(data.status);
 
         document.getElementById('stats-unique-count').textContent = data.unique_scan_count || 0;
         document.getElementById('stats-scan-count').textContent = data.scan_count || 0;
@@ -1325,6 +1453,35 @@ export function renderHomePage(): string {
         lookupBtn.disabled = false;
       }
     });
+
+    function updateLookupBadge(status) {
+      const badge = document.getElementById('stats-status-badge');
+      badge.textContent = status;
+      badge.className = 'status-badge ' + (status === 'active' ? 'status-active' : 'status-inactive');
+    }
+
+    async function toggleCurrentLookupQr() {
+      if (!currentLookupId) return;
+      const targetStatus = currentLookupStatus === 'active' ? 'inactive' : 'active';
+      try {
+        const res = await fetch('/api/toggle/' + currentLookupId, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Admin-Key': getStoredAdminKey()
+          },
+          body: JSON.stringify({ status: targetStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          currentLookupStatus = data.status;
+          updateLookupBadge(data.status);
+          showToast(\`QR #\${currentLookupId} is now \${data.status.toUpperCase()}\`);
+        }
+      } catch (err) {
+        alert('Toggle failed: ' + err.message);
+      }
+    }
   </script>
 </body>
 </html>`;
@@ -1412,7 +1569,7 @@ export function renderInactivePage(reason = 'This QR code is no longer active'):
       </svg>
     </div>
     <h1>QR Code Inactive</h1>
-    <p>${reason}. The unique customer scan limit has been reached or this campaign has ended.</p>
+    <p>${reason}. This campaign has been paused or deactivated by the organizer.</p>
     <a href="/" class="btn">Go to QR Forge</a>
   </div>
 </body>
