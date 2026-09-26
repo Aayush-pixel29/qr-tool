@@ -4,8 +4,8 @@ export function renderHomePage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Forge — Dynamic QR Codes with Manual Controls & Bulk Batch Generator</title>
-  <meta name="description" content="Dynamic QR Code generator with real-time unique customer tracking, batch .txt/.docx processing, manual active/inactive switches, and ZIP export.">
+  <title>QR Forge — Dynamic QR Codes with Direct Copy & Bulk Generator</title>
+  <meta name="description" content="Dynamic QR Code generator with real-time customer tracking, 1-click clipboard image copy, batch .txt/.docx processing, and ZIP export.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -54,7 +54,7 @@ export function renderHomePage(): string {
 
     .container {
       width: 100%;
-      max-width: 1080px;
+      max-width: 1120px;
     }
 
     header {
@@ -119,7 +119,7 @@ export function renderHomePage(): string {
     .subtitle {
       color: var(--text-muted);
       font-size: 1.05rem;
-      max-width: 650px;
+      max-width: 680px;
       margin: 0 auto;
       line-height: 1.55;
     }
@@ -177,7 +177,7 @@ export function renderHomePage(): string {
     /* Cards */
     .grid-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.1fr 0.9fr;
       gap: 2rem;
       align-items: start;
     }
@@ -339,7 +339,7 @@ export function renderHomePage(): string {
       flex-direction: column;
       align-items: center;
       text-align: center;
-      min-height: 420px;
+      min-height: 440px;
       justify-content: center;
     }
 
@@ -355,6 +355,12 @@ export function renderHomePage(): string {
       justify-content: center;
       margin-bottom: 1.25rem;
       transition: transform 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .qr-box:hover {
+      transform: scale(1.02);
     }
 
     .qr-box svg {
@@ -384,7 +390,7 @@ export function renderHomePage(): string {
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
 
     .short-url-text {
@@ -396,34 +402,17 @@ export function renderHomePage(): string {
       white-space: nowrap;
     }
 
-    .copy-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 8px;
-      color: #fff;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .copy-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-    }
-
-    .actions-grid {
+    .actions-grid-4 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
+      gap: 0.6rem;
       width: 100%;
     }
 
     .btn-action {
-      padding: 0.75rem 1rem;
+      padding: 0.65rem 0.85rem;
       border-radius: 10px;
-      font-size: 0.85rem;
+      font-size: 0.825rem;
       font-weight: 600;
       text-align: center;
       text-decoration: none;
@@ -433,6 +422,16 @@ export function renderHomePage(): string {
       gap: 0.4rem;
       cursor: pointer;
       transition: all 0.2s;
+    }
+
+    .btn-copy-qr {
+      background: rgba(236, 72, 153, 0.15);
+      border: 1px solid rgba(236, 72, 153, 0.35);
+      color: #f472b6;
+    }
+
+    .btn-copy-qr:hover {
+      background: rgba(236, 72, 153, 0.28);
     }
 
     .btn-download {
@@ -453,6 +452,33 @@ export function renderHomePage(): string {
 
     .btn-test:hover {
       background: rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-view {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+    }
+
+    .btn-view:hover {
+      background: rgba(56, 189, 248, 0.25);
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      color: #fff;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
     }
 
     .status-badge {
@@ -481,7 +507,7 @@ export function renderHomePage(): string {
 
     .meta-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1.2fr 1fr 1fr;
       gap: 0.5rem;
       width: 100%;
       font-size: 0.775rem;
@@ -499,40 +525,6 @@ export function renderHomePage(): string {
       color: #fff;
       display: block;
       margin-top: 0.2rem;
-    }
-
-    /* Bulk Upload Styles */
-    .dropzone {
-      border: 2px dashed rgba(99, 102, 241, 0.35);
-      border-radius: 14px;
-      padding: 1.5rem 1rem;
-      text-align: center;
-      background: rgba(15, 23, 42, 0.5);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      margin-bottom: 1.25rem;
-    }
-
-    .dropzone:hover, .dropzone.dragover {
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.08);
-    }
-
-    .file-input {
-      display: none;
-    }
-
-    .file-info-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      color: #38bdf8;
-      padding: 0.35rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      margin-top: 0.75rem;
     }
 
     /* Switch Component */
@@ -585,6 +577,40 @@ export function renderHomePage(): string {
       transform: translateX(18px);
     }
 
+    /* Bulk Upload Styles */
+    .dropzone {
+      border: 2px dashed rgba(99, 102, 241, 0.35);
+      border-radius: 14px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.5);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 1.25rem;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.08);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-info-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+    }
+
     /* Results Table */
     .results-section {
       margin-top: 2rem;
@@ -624,14 +650,21 @@ export function renderHomePage(): string {
     }
 
     .table-thumb {
-      width: 46px;
-      height: 46px;
+      width: 48px;
+      height: 48px;
       background: #fff;
       border-radius: 8px;
       padding: 4px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .table-thumb:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
     }
 
     .table-thumb svg {
@@ -659,12 +692,12 @@ export function renderHomePage(): string {
       box-shadow: 0 15px 25px -5px rgba(16, 185, 129, 0.55);
     }
 
-    /* Modal / Auth Dialog */
+    /* Modal / Dialogs */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(10px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -679,11 +712,52 @@ export function renderHomePage(): string {
     .modal-card {
       background: #111827;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 2rem;
-      max-width: 420px;
+      max-width: 480px;
       width: 100%;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-qr-preview {
+      width: 260px;
+      height: 260px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 14px;
+      margin: 1.25rem auto;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-qr-preview svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .toast {
@@ -700,7 +774,7 @@ export function renderHomePage(): string {
       transform: translateY(100px);
       opacity: 0;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 1000;
+      z-index: 3000;
     }
 
     .toast.show {
@@ -719,7 +793,7 @@ export function renderHomePage(): string {
         Cloudflare Workers + D1 Edge Engine
       </div>
       <div id="auth-status-badge" class="auth-badge" onclick="openAuthModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
         <span id="auth-status-text">Admin Key Active</span>
@@ -728,7 +802,7 @@ export function renderHomePage(): string {
 
     <header>
       <h1>QR Forge</h1>
-      <p class="subtitle">Generate high-reliability dynamic QR codes with real-time customer tracking, manual active/inactive toggles, and bulk ZIP export.</p>
+      <p class="subtitle">Generate high-reliability dynamic QR codes with 1-click clipboard image copy, batch file generation, and manual pause/resume switches.</p>
     </header>
 
     <!-- Navigation Tabs -->
@@ -806,7 +880,7 @@ export function renderHomePage(): string {
 
         <!-- Right: Preview & Output -->
         <div class="glass-card preview-container">
-          <div class="qr-box" id="qr-box">
+          <div class="qr-box" id="qr-box" onclick="openSingleQrInModal()">
             <div class="placeholder-qr">
               <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <rect width="18" height="18" x="3" y="3" rx="2"/>
@@ -822,7 +896,16 @@ export function renderHomePage(): string {
               <button type="button" class="copy-btn" id="copy-btn">Copy Link</button>
             </div>
 
-            <div class="actions-grid">
+            <!-- Quick Action Buttons -->
+            <div class="actions-grid-4">
+              <button type="button" class="btn-action btn-copy-qr" onclick="copyCurrentQrImage()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                Copy QR Image
+              </button>
+              <button type="button" class="btn-action btn-view" onclick="openSingleQrInModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                View Fullscreen
+              </button>
               <a id="download-btn" class="btn-action btn-download" download="qr-code.svg">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Download SVG
@@ -856,7 +939,7 @@ export function renderHomePage(): string {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
           </svg>
-          Batch Import & Generator (Unlimited Lifetime QRs with Manual Switches)
+          Batch Import & Generator (Lifetime QRs with View & Copy Options)
         </h2>
 
         <!-- Dropzone -->
@@ -915,7 +998,7 @@ export function renderHomePage(): string {
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
             <div>
               <h3 style="font-size:1.15rem; font-weight:700; color:#fff;">Batch Ready (<span id="batch-total-count">0</span> QRs Generated)</h3>
-              <p style="font-size:0.8rem; color:var(--text-muted);">Lifetime unlimited scans. Use the toggles to pause/resume any QR manually at any time.</p>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Lifetime unlimited scans. Click any QR thumbnail to view full-size or copy directly.</p>
             </div>
             <button type="button" class="btn-zip" id="download-zip-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -929,12 +1012,12 @@ export function renderHomePage(): string {
             <table>
               <thead>
                 <tr>
-                  <th style="width: 45px;">#</th>
-                  <th style="width: 65px;">QR</th>
+                  <th style="width: 40px;">#</th>
+                  <th style="width: 60px;">View QR</th>
                   <th>Destination URL</th>
                   <th>Short Tracking Link</th>
-                  <th style="width: 130px; text-align: center;">Status Switch</th>
-                  <th style="width: 120px; text-align: right;">Action</th>
+                  <th style="width: 120px; text-align: center;">Status Switch</th>
+                  <th style="width: 200px; text-align: right;">Quick Actions</th>
                 </tr>
               </thead>
               <tbody id="bulk-table-body"></tbody>
@@ -951,7 +1034,7 @@ export function renderHomePage(): string {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
           </svg>
-          QR Analytics & Manual Switch Control
+          QR Analytics & Instant Switch Control
         </h2>
         <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem;">
           <input type="text" id="stats-id-input" placeholder="Enter QR ID (e.g. 8-character ID or full short link)" autocomplete="off" />
@@ -992,9 +1075,48 @@ export function renderHomePage(): string {
     </div>
   </div>
 
+  <!-- View QR Large Modal -->
+  <div id="view-modal" class="modal-overlay">
+    <div class="modal-card">
+      <button type="button" class="modal-close-btn" onclick="closeViewModal()">✕</button>
+      <h3 style="font-size:1.25rem; font-weight:700; color:#fff; text-align:center;">QR Code Preview</h3>
+      
+      <div class="modal-qr-preview" id="modal-qr-container"></div>
+      
+      <div style="margin-bottom:1rem;">
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.2rem;">Short Redirect URL:</div>
+        <div class="link-box" style="margin-bottom:0.5rem;">
+          <span class="short-url-text" id="modal-short-url">https://...</span>
+          <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('modal-short-url').textContent); showToast('Short URL copied!');">Copy Link</button>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-muted); word-break:break-all;" id="modal-target-url">Target: https://...</div>
+      </div>
+
+      <div class="actions-grid-4">
+        <button type="button" class="btn-action btn-copy-qr" id="modal-copy-img-btn" onclick="copyModalQrImage()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          Copy Image
+        </button>
+        <button type="button" class="btn-action btn-view" onclick="copyModalSvgMarkup()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Copy SVG Code
+        </button>
+        <a id="modal-download-svg" class="btn-action btn-download" download="qr-code.svg">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download SVG
+        </a>
+        <a id="modal-test-link" class="btn-action btn-test" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Test Scan
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin Auth Modal -->
   <div id="auth-modal" class="modal-overlay">
     <div class="modal-card">
+      <button type="button" class="modal-close-btn" onclick="closeAuthModal()">✕</button>
       <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:0.5rem; color:#fff;">Admin Access Key</h3>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">Enter your Admin Key to authorize QR creation & batch uploads.</p>
       <input type="password" id="admin-key-input" placeholder="Enter Admin Key" style="margin-bottom:1rem;" />
@@ -1010,6 +1132,11 @@ export function renderHomePage(): string {
   <script>
     let generatedBatchItems = [];
     let currentSingleId = null;
+    let currentSingleSvg = '';
+    let currentSingleShortUrl = '';
+    let currentSingleTargetUrl = '';
+
+    let activeModalSvg = '';
     let currentLookupId = null;
     let currentLookupStatus = 'active';
 
@@ -1036,6 +1163,90 @@ export function renderHomePage(): string {
       closeAuthModal();
     }
 
+    // Modal view handlers
+    function openViewModal(svgStr, shortUrl, targetUrl, id) {
+      activeModalSvg = svgStr;
+      document.getElementById('modal-qr-container').innerHTML = svgStr;
+      document.getElementById('modal-short-url').textContent = shortUrl;
+      document.getElementById('modal-target-url').textContent = 'Target: ' + targetUrl;
+      
+      const downloadBtn = document.getElementById('modal-download-svg');
+      downloadBtn.href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+      downloadBtn.setAttribute('download', 'qr-' + id + '.svg');
+
+      document.getElementById('modal-test-link').href = shortUrl;
+      document.getElementById('view-modal').classList.add('show');
+    }
+
+    function closeViewModal() {
+      document.getElementById('view-modal').classList.remove('show');
+    }
+
+    function openSingleQrInModal() {
+      if (!currentSingleSvg) return;
+      openViewModal(currentSingleSvg, currentSingleShortUrl, currentSingleTargetUrl, currentSingleId);
+    }
+
+    // High-Resolution SVG to PNG Clipboard Copy
+    async function copySvgImageToClipboard(svgString) {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const URLObj = window.URL || window.webkitURL || window;
+        const blobURL = URLObj.createObjectURL(svgBlob);
+
+        img.onload = () => {
+          canvas.width = 800;
+          canvas.height = 800;
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, 800, 800);
+          ctx.drawImage(img, 0, 0, 800, 800);
+          URLObj.revokeObjectURL(blobURL);
+
+          canvas.toBlob(async (blob) => {
+            if (!blob) {
+              showToast('Could not convert image');
+              return;
+            }
+            try {
+              await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+              ]);
+              showToast('QR Image Copied! Ready to paste (Ctrl+V) anywhere.');
+            } catch (err) {
+              // Fallback to text copy
+              await navigator.clipboard.writeText(svgString);
+              showToast('SVG Markup Copied to Clipboard!');
+            }
+          }, 'image/png');
+        };
+        img.src = blobURL;
+      } catch (err) {
+        showToast('Error copying image: ' + err.message);
+      }
+    }
+
+    function copyCurrentQrImage() {
+      if (currentSingleSvg) {
+        copySvgImageToClipboard(currentSingleSvg);
+      }
+    }
+
+    function copyModalQrImage() {
+      if (activeModalSvg) {
+        copySvgImageToClipboard(activeModalSvg);
+      }
+    }
+
+    async function copyModalSvgMarkup() {
+      if (activeModalSvg) {
+        await navigator.clipboard.writeText(activeModalSvg);
+        showToast('Raw SVG code copied to clipboard!');
+      }
+    }
+
     // Tabs logic
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
@@ -1058,12 +1269,11 @@ export function renderHomePage(): string {
       });
     });
 
-    // Toast helper
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
+      setTimeout(() => toast.classList.remove('show'), 2800);
     }
 
     // Single QR submission
@@ -1109,6 +1319,10 @@ export function renderHomePage(): string {
 
         const data = await res.json();
         currentSingleId = data.id;
+        currentSingleSvg = data.qr_svg;
+        currentSingleShortUrl = data.short_url;
+        currentSingleTargetUrl = data.target_url;
+
         qrBox.innerHTML = data.qr_svg;
         outputDetails.style.display = 'block';
         shortUrlDisplay.textContent = data.short_url;
@@ -1133,7 +1347,6 @@ export function renderHomePage(): string {
       }
     });
 
-    // Single QR toggle
     async function toggleSingleQrStatus(checkbox) {
       if (!currentSingleId) return;
       const targetStatus = checkbox.checked ? 'active' : 'inactive';
@@ -1166,7 +1379,6 @@ export function renderHomePage(): string {
       }
     });
 
-    // Helper: Extract valid URLs from text
     function extractUrlsFromText(text) {
       const lines = text.split(/\\r?\\n/);
       const urls = [];
@@ -1292,12 +1504,15 @@ export function renderHomePage(): string {
         data.items.forEach((item, index) => {
           const tr = document.createElement('tr');
           const cleanSvgBlob = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(item.qr_svg);
+          
           tr.innerHTML = \`
             <td style="font-weight:700; color:var(--text-muted);">\${index + 1}</td>
             <td>
-              <div class="table-thumb">\${item.qr_svg}</div>
+              <div class="table-thumb" title="Click to view fullscreen" onclick="openBatchItemModal(\${index})">
+                \${item.qr_svg}
+              </div>
             </td>
-            <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
               <a href="\${item.target_url}" target="_blank" style="color:#f8fafc; text-decoration:none;">\${item.target_url}</a>
             </td>
             <td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:#38bdf8;">
@@ -1313,8 +1528,10 @@ export function renderHomePage(): string {
               </div>
             </td>
             <td style="text-align:right; white-space:nowrap;">
-              <a href="\${cleanSvgBlob}" download="qr-\${index + 1}-\${item.id}.svg" class="copy-btn" style="text-decoration:none; margin-right:4px;">Download</a>
-              <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('\${item.short_url}'); showToast('Copied link #\${index + 1}');">Copy</button>
+              <button type="button" class="copy-btn" style="background:rgba(236,72,153,0.15); border-color:rgba(236,72,153,0.3); color:#f472b6; margin-right:4px;" onclick="copyBatchItemImage(\${index})">📋 Copy QR</button>
+              <button type="button" class="copy-btn" style="margin-right:4px;" onclick="openBatchItemModal(\${index})">👁️ View</button>
+              <a href="\${cleanSvgBlob}" download="qr-\${index + 1}-\${item.id}.svg" class="copy-btn" style="text-decoration:none; margin-right:4px;">⬇️ SVG</a>
+              <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('\${item.short_url}'); showToast('Copied link #\${index + 1}');">🔗</button>
             </td>
           \`;
           bulkTableBody.appendChild(tr);
@@ -1331,7 +1548,18 @@ export function renderHomePage(): string {
       }
     });
 
-    // Toggle status for batch row
+    function openBatchItemModal(index) {
+      const item = generatedBatchItems[index];
+      if (!item) return;
+      openViewModal(item.qr_svg, item.short_url, item.target_url, item.id);
+    }
+
+    function copyBatchItemImage(index) {
+      const item = generatedBatchItems[index];
+      if (!item) return;
+      copySvgImageToClipboard(item.qr_svg);
+    }
+
     async function toggleBatchRowStatus(id, checkbox) {
       const targetStatus = checkbox.checked ? 'active' : 'inactive';
       const label = document.getElementById('batch-status-label-' + id);
@@ -1358,7 +1586,6 @@ export function renderHomePage(): string {
       }
     }
 
-    // Helper: Slugify string
     function slugify(text) {
       return text.toLowerCase().replace(/^https?:\\/\\//, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 30) || 'qr';
     }
