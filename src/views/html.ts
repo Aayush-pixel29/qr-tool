@@ -5,7 +5,7 @@ export function renderHomePage(): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Forge — Enterprise Dynamic QR Code & Management Studio</title>
-  <meta name="description" content="Professional dynamic QR engine with live Cloudflare telemetry, batch processing, 1-click clipboard PNG copying, inline record management, and customer tracking.">
+  <meta name="description" content="Professional dynamic QR engine with live Cloudflare telemetry, visual analytics graphs, batch processing, 1-click clipboard PNG copying, inline record management, and customer tracking.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,6 +13,9 @@ export function renderHomePage(): string {
   <!-- Mammoth for .docx extraction & JSZip for optional batch zip export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <!-- Chart.js for Visual Analytics & Trend Graphs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   
   <style>
     :root {
@@ -211,6 +214,7 @@ export function renderHomePage(): string {
       margin-bottom: 1.5rem;
       border-bottom: 1px solid var(--card-border);
       padding-bottom: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .tab-btn {
@@ -352,7 +356,7 @@ export function renderHomePage(): string {
       color: var(--text-white);
     }
 
-    /* Primary & Secondary Buttons */
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -536,7 +540,6 @@ export function renderHomePage(): string {
       font-size: 0.75rem;
     }
 
-    /* Thumbnail QR preview inside tables */
     .table-qr-thumb {
       width: 44px;
       height: 44px;
@@ -647,6 +650,41 @@ export function renderHomePage(): string {
       from { transform: translateY(10px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
+
+    /* Charts Grid Layout */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 860px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background: var(--card-sub);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+    }
+
+    .chart-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -730,6 +768,10 @@ export function renderHomePage(): string {
     <button class="tab-btn active" onclick="switchTab('studioTab')">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       QR Generator Studio
+    </button>
+    <button class="tab-btn" onclick="switchTab('analyticsTab')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      📊 Analytics & Visual Graphs
     </button>
     <button class="tab-btn" onclick="switchTab('recordsTab')">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -901,7 +943,69 @@ export function renderHomePage(): string {
     </div>
   </div>
 
-  <!-- TAB 2: RECORDS & MANAGEMENT DATABASE -->
+  <!-- TAB 2: VISUAL ANALYTICS & TRENDS -->
+  <div id="analyticsTab" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Graphical Performance & Creation Analytics</div>
+          <div class="card-desc">Visual graphs tracking QR code creation history, customer scan traffic, and design distributions</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="refreshSystemTelemetry()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh Charts
+        </button>
+      </div>
+
+      <!-- Charts Row 1 -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">7-Day Creation & Scan Activity Trend</div>
+          <div class="chart-desc">Compares daily QR codes generated versus daily scans received</div>
+          <div style="height: 240px; position: relative;">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">QR Styling Breakdown</div>
+          <div class="chart-desc">Distribution of selected aesthetic styles</div>
+          <div style="height: 240px; position: relative;">
+            <canvas id="styleChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Performing QRs Leaderboard -->
+      <div style="margin-top: 1.5rem;">
+        <div style="font-weight: 700; font-size: 1.05rem; color: #ffffff; margin-bottom: 0.35rem;">🏆 Top Performing QR Codes Leaderboard</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">QR codes with the highest customer scans and unique visitors</div>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 60px;">Rank</th>
+                <th style="width: 100px;">Short ID</th>
+                <th>Target Destination URL</th>
+                <th style="width: 100px;">Style</th>
+                <th style="width: 110px; text-align: center;">Total Scans</th>
+                <th style="width: 110px; text-align: center;">Unique Visitors</th>
+                <th style="width: 100px; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="topQrsTableBody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-dim); padding: 1.5rem;">Loading leaderboard...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: RECORDS & MANAGEMENT DATABASE -->
   <div id="recordsTab" class="tab-content">
     <div class="card">
       <div class="card-header">
@@ -972,7 +1076,7 @@ export function renderHomePage(): string {
     </div>
   </div>
 
-  <!-- TAB 3: CLOUDFLARE HUB & TECHNICAL AUDIT -->
+  <!-- TAB 4: CLOUDFLARE HUB & TECHNICAL AUDIT -->
   <div id="cloudflareHubTab" class="tab-content">
     <div class="card">
       <div class="card-header">
@@ -1135,6 +1239,8 @@ export function renderHomePage(): string {
   let currentRecordPage = 1;
   let totalRecordPages = 1;
   let latestBatchItems = [];
+  let trendChartInstance = null;
+  let styleChartInstance = null;
 
   function showToast(msg) {
     const box = document.getElementById('toastContainer');
@@ -1161,6 +1267,8 @@ export function renderHomePage(): string {
 
     if (tabId === 'recordsTab') {
       loadRecords(1);
+    } else if (tabId === 'analyticsTab') {
+      refreshSystemTelemetry();
     }
   }
 
@@ -1190,7 +1298,7 @@ export function renderHomePage(): string {
     refreshSystemTelemetry();
   }
 
-  // --- 1. LIVE SYSTEM TELEMETRY ---
+  // --- 1. LIVE SYSTEM TELEMETRY & CHARTS ---
   async function refreshSystemTelemetry() {
     try {
       const res = await fetch('/api/system-stats', { headers: getHeaders() });
@@ -1206,9 +1314,131 @@ export function renderHomePage(): string {
         document.getElementById('telUniqueScans').innerText = d.total_unique_scans;
         document.getElementById('telTotalScans').innerText = d.total_scans + ' Lifetime Hits';
         document.getElementById('telDbSize').innerText = d.estimated_db_mb + ' MB';
+
+        // Render visual charts if data present
+        if (d.charts) {
+          renderVisualCharts(d.charts);
+        }
       }
     } catch (err) {
       console.error('Telemetry refresh error:', err);
+    }
+  }
+
+  function renderVisualCharts(charts) {
+    // 1. Trend Chart
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+      const dates = [];
+      const creationsMap = {};
+      const scansMap = {};
+
+      (charts.daily_creations || []).forEach(c => {
+        if (!dates.includes(c.day)) dates.push(c.day);
+        creationsMap[c.day] = c.count;
+      });
+
+      (charts.daily_scans || []).forEach(s => {
+        if (!dates.includes(s.day)) dates.push(s.day);
+        scansMap[s.day] = s.count;
+      });
+
+      dates.sort();
+      if (dates.length === 0) dates.push('Today');
+
+      const creationData = dates.map(d => creationsMap[d] || 0);
+      const scanData = dates.map(d => scansMap[d] || 0);
+
+      if (trendChartInstance) trendChartInstance.destroy();
+      trendChartInstance = new Chart(trendCtx, {
+        type: 'bar',
+        data: {
+          labels: dates,
+          datasets: [
+            {
+              label: 'QRs Created',
+              data: creationData,
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              borderRadius: 4
+            },
+            {
+              label: 'Scans Received',
+              data: scanData,
+              backgroundColor: 'rgba(16, 185, 129, 0.85)',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } } }
+          },
+          scales: {
+            x: { grid: { color: '#232730' }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: '#232730' }, ticks: { color: '#94a3b8', precision: 0 } }
+          }
+        }
+      });
+    }
+
+    // 2. Style Breakdown Doughnut
+    const styleCtx = document.getElementById('styleChart');
+    if (styleCtx) {
+      const styleLabels = (charts.style_breakdown || []).map(s => s.design.toUpperCase());
+      const styleValues = (charts.style_breakdown || []).map(s => s.count);
+
+      if (styleChartInstance) styleChartInstance.destroy();
+      styleChartInstance = new Chart(styleCtx, {
+        type: 'doughnut',
+        data: {
+          labels: styleLabels.length ? styleLabels : ['Classic'],
+          datasets: [{
+            data: styleValues.length ? styleValues : [1],
+            backgroundColor: ['#ffffff', '#94a3b8', '#64748b', '#475569', '#334155'],
+            borderColor: '#111317',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } }
+          }
+        }
+      });
+    }
+
+    // 3. Top QRs Leaderboard
+    const topTbody = document.getElementById('topQrsTableBody');
+    if (topTbody && charts.top_qrs) {
+      if (charts.top_qrs.length === 0) {
+        topTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 1.5rem;">No scan activity recorded yet.</td></tr>';
+      } else {
+        let html = '';
+        charts.top_qrs.forEach((q, idx) => {
+          html += \`
+            <tr>
+              <td><span class="serial-badge">#\${idx + 1}</span></td>
+              <td><span class="id-badge">\${q.id}</span></td>
+              <td>
+                <div style="max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">
+                  \${q.target_url}
+                </div>
+              </td>
+              <td><span style="font-size: 0.75rem; text-transform: capitalize; color: var(--text-muted);">\${q.design}</span></td>
+              <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700;">\${q.scan_count}</td>
+              <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #10b981;">\${q.unique_scan_count}</td>
+              <td style="text-align: right;">
+                <button class="btn btn-primary btn-sm" onclick="copyRecordPng('\${q.id}')">📋 Copy</button>
+              </td>
+            </tr>
+          \`;
+        });
+        topTbody.innerHTML = html;
+      }
     }
   }
 

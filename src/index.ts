@@ -379,7 +379,7 @@ app.post('/api/toggle/:id', async (c) => {
 });
 
 /**
- * 8. GET /api/system-stats → Live Cloudflare & Database quota telemetry
+ * 8. GET /api/system-stats → Live Cloudflare telemetry & visual analytics chart data
  */
 app.get('/api/system-stats', async (c) => {
   try {
@@ -413,6 +413,42 @@ app.get('/api/system-stats', async (c) => {
       .bind(todayTimestamp)
       .first<{ count: number }>();
 
+    // 7-day daily scan history
+    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const { results: dailyScans } = await c.env.DB.prepare(
+      `SELECT 
+        strftime('%Y-%m-%d', scanned_at / 1000, 'unixepoch') as day,
+        COUNT(*) as count
+       FROM scan_log 
+       WHERE scanned_at >= ?
+       GROUP BY day
+       ORDER BY day ASC`
+    ).bind(sevenDaysAgo).all<{ day: string; count: number }>();
+
+    // 7-day QR creation history
+    const { results: dailyCreations } = await c.env.DB.prepare(
+      `SELECT 
+        strftime('%Y-%m-%d', created_at / 1000, 'unixepoch') as day,
+        COUNT(*) as count
+       FROM qr_codes 
+       WHERE created_at >= ?
+       GROUP BY day
+       ORDER BY day ASC`
+    ).bind(sevenDaysAgo).all<{ day: string; count: number }>();
+
+    // Style distribution breakdown
+    const { results: styleBreakdown } = await c.env.DB.prepare(
+      `SELECT design, COUNT(*) as count FROM qr_codes GROUP BY design`
+    ).all<{ design: string; count: number }>();
+
+    // Top 5 most active QR codes
+    const { results: topQrs } = await c.env.DB.prepare(
+      `SELECT id, target_url, scan_count, unique_scan_count, design, status 
+       FROM qr_codes 
+       ORDER BY scan_count DESC 
+       LIMIT 5`
+    ).all<{ id: string; target_url: string; scan_count: number; unique_scan_count: number; design: string; status: string }>();
+
     const totalQrs = qrStats?.total_qrs || 0;
     const activeQrs = qrStats?.active_qrs || 0;
     const inactiveQrs = qrStats?.inactive_qrs || 0;
@@ -441,7 +477,13 @@ app.get('/api/system-stats', async (c) => {
         cf_daily_limit: cfDailyLimit,
         cf_d1_limit_gb: cfD1LimitGb,
         daily_percent_used: ((scansToday / cfDailyLimit) * 100).toFixed(2),
-        cost_status: '₹0 / month (100% Free Tier Covered)'
+        cost_status: '₹0 / month (100% Free Tier Covered)',
+        charts: {
+          daily_scans: dailyScans || [],
+          daily_creations: dailyCreations || [],
+          style_breakdown: styleBreakdown || [],
+          top_qrs: topQrs || []
+        }
       }
     });
   } catch (err: any) {
