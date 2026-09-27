@@ -4,13 +4,13 @@ export function renderHomePage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Forge — Enterprise QR Code Engine & Management Studio</title>
+  <title>QR Forge — Enterprise Dynamic QR Code & Management Studio</title>
   <meta name="description" content="Professional dynamic QR engine with live Cloudflare telemetry, batch processing, 1-click clipboard PNG copying, inline record management, and customer tracking.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
-  <!-- Mammoth for .docx extraction & JSZip for batch zip export -->
+  <!-- Mammoth for .docx extraction & JSZip for optional batch zip export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
@@ -400,8 +400,9 @@ export function renderHomePage(): string {
     }
 
     .btn-sm {
-      padding: 0.4rem 0.75rem;
-      font-size: 0.78rem;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.8rem;
+      border-radius: 6px;
     }
 
     /* Dropzone */
@@ -533,6 +534,25 @@ export function renderHomePage(): string {
       padding: 0.2rem 0.5rem;
       border-radius: 4px;
       font-size: 0.75rem;
+    }
+
+    /* Thumbnail QR preview inside tables */
+    .table-qr-thumb {
+      width: 44px;
+      height: 44px;
+      background: #ffffff;
+      padding: 3px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid #333;
+    }
+
+    .table-qr-thumb svg {
+      width: 100%;
+      height: 100%;
     }
 
     /* Search & Filter Bar */
@@ -728,7 +748,7 @@ export function renderHomePage(): string {
       <div class="card-header">
         <div>
           <div class="card-title">Single Dynamic QR Generator</div>
-          <div class="card-desc">Create permanent high-resolution tracking QR codes with instant clipboard export</div>
+          <div class="card-desc">Create permanent high-resolution tracking QR codes with 1-click clipboard PNG copying for cards & designs</div>
         </div>
       </div>
 
@@ -765,17 +785,21 @@ export function renderHomePage(): string {
         </button>
       </div>
 
-      <!-- Single QR Result Preview (Hidden by default) -->
+      <!-- Single QR Result Preview (Live in UI) -->
       <div id="singleResultBox" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
         <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
-          <div id="singleSvgContainer" style="background: #ffffff; padding: 12px; border-radius: 8px; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center;"></div>
+          <div id="singleSvgContainer" style="background: #ffffff; padding: 12px; border-radius: 8px; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="viewCurrentSingleQr()"></div>
           <div style="flex: 1; min-width: 250px;">
-            <div style="font-size: 0.85rem; color: var(--text-muted);">Tracking Short URL:</div>
-            <div id="singleShortUrl" style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 0.75rem;"></div>
+            <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.2rem;">Short Tracking URL:</div>
+            <div id="singleShortUrl" style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 0.85rem;"></div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn btn-secondary btn-sm" onclick="copySinglePng()">
+              <button class="btn btn-primary btn-sm" onclick="copySinglePng()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                Copy PNG to Clipboard
+                📋 Copy PNG to Clipboard
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="viewCurrentSingleQr()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                🔍 View Large
               </button>
               <button class="btn btn-secondary btn-sm" onclick="downloadSingleSvg()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -796,7 +820,7 @@ export function renderHomePage(): string {
       <div class="card-header">
         <div>
           <div class="card-title">Bulk Batch Ingestion Engine</div>
-          <div class="card-desc">Upload Word (.docx) or Text (.txt) files to generate up to 500 lifetime QRs in one ZIP</div>
+          <div class="card-desc">Drop Word (.docx) or Text (.txt) files to generate and view all QR codes on screen with 1-click PNG copying</div>
         </div>
       </div>
 
@@ -836,9 +860,43 @@ export function renderHomePage(): string {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
         <button class="btn btn-primary" id="startBatchBtn" onclick="processBatch()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run Batch Processing
+          Generate Batch QRs
         </button>
         <div id="batchStatusText" style="font-size: 0.85rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;"></div>
+      </div>
+
+      <!-- Batch Results Gallery / Table (Appears on screen after generating) -->
+      <div id="batchResultsSection" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <div style="font-weight: 700; font-size: 1.1rem; color: #ffffff;" id="batchResultsTitle">Generated Batch QRs</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">Click 📋 Copy PNG to paste directly into your cards/design software</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" id="downloadZipOptionalBtn" onclick="downloadBatchZip()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              📦 Download All (.ZIP)
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="downloadBatchCsv()">
+              📊 Export CSV Mapping
+            </button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th style="width: 60px;">Preview</th>
+                <th style="width: 100px;">Short ID</th>
+                <th>Target Destination URL</th>
+                <th style="width: 180px; text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="batchResultsTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -882,19 +940,20 @@ export function renderHomePage(): string {
         <table>
           <thead>
             <tr>
-              <th style="width: 70px;">Serial</th>
-              <th style="width: 110px;">Short ID</th>
+              <th style="width: 60px;">Serial</th>
+              <th style="width: 60px;">Preview</th>
+              <th style="width: 100px;">Short ID</th>
               <th>Target Destination URL</th>
-              <th style="width: 100px;">Style</th>
-              <th style="width: 100px; text-align: center;">Scans</th>
-              <th style="width: 100px; text-align: center;">Unique</th>
-              <th style="width: 120px;">Status</th>
-              <th style="width: 180px; text-align: right;">Actions</th>
+              <th style="width: 90px;">Style</th>
+              <th style="width: 80px; text-align: center;">Scans</th>
+              <th style="width: 80px; text-align: center;">Unique</th>
+              <th style="width: 110px;">Status</th>
+              <th style="width: 170px; text-align: right;">Actions</th>
             </tr>
           </thead>
           <tbody id="recordsTableBody">
             <tr>
-              <td colspan="8" style="text-align: center; color: var(--text-dim); padding: 2rem;">Loading records from Cloudflare D1...</td>
+              <td colspan="9" style="text-align: center; color: var(--text-dim); padding: 2rem;">Loading records from Cloudflare D1...</td>
             </tr>
           </tbody>
         </table>
@@ -1009,9 +1068,9 @@ export function renderHomePage(): string {
     </div>
 
     <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-      <button class="btn btn-primary btn-sm" id="modalCopyBtn">Copy PNG Image</button>
-      <button class="btn btn-secondary btn-sm" id="modalDownloadBtn">Download SVG</button>
-      <a href="#" target="_blank" class="btn btn-secondary btn-sm" id="modalRedirectBtn">Test Link ↗</a>
+      <button class="btn btn-primary btn-sm" id="modalCopyBtn">📋 Copy PNG Image</button>
+      <button class="btn btn-secondary btn-sm" id="modalDownloadBtn">⬇️ Download SVG</button>
+      <a href="#" target="_blank" class="btn btn-secondary btn-sm" id="modalRedirectBtn">↗ Test Link</a>
     </div>
   </div>
 </div>
@@ -1075,6 +1134,7 @@ export function renderHomePage(): string {
   let selectedDesigns = { single: 'classic', bulk: 'classic' };
   let currentRecordPage = 1;
   let totalRecordPages = 1;
+  let latestBatchItems = [];
 
   function showToast(msg) {
     const box = document.getElementById('toastContainer');
@@ -1153,7 +1213,7 @@ export function renderHomePage(): string {
   }
 
   // --- 2. SINGLE QR GENERATION ---
-  let currentSingleSvg = '';
+  let currentSingleData = null;
   async function createSingleQR() {
     const url = document.getElementById('singleUrl').value.trim();
     if (!url) {
@@ -1177,12 +1237,12 @@ export function renderHomePage(): string {
         return;
       }
 
-      currentSingleSvg = data.qr_svg;
+      currentSingleData = data;
       document.getElementById('singleSvgContainer').innerHTML = data.qr_svg;
       document.getElementById('singleShortUrl').innerText = data.short_url;
       document.getElementById('singleTestLink').href = data.short_url;
       document.getElementById('singleResultBox').style.display = 'block';
-      showToast('Dynamic QR created successfully!');
+      showToast('Dynamic QR created! Click "Copy PNG" to paste into cards.');
       refreshSystemTelemetry();
     } catch (err) {
       alert('Error: ' + err.message);
@@ -1210,12 +1270,12 @@ export function renderHomePage(): string {
           navigator.clipboard.write([
             new ClipboardItem({ 'image/png': blob })
           ]).then(() => {
-            showToast('✓ PNG image copied to clipboard! Ready to paste.');
+            showToast('✓ High-res PNG copied to clipboard! Ready to paste (Ctrl+V).');
           }).catch(() => {
-            showToast('Copy not supported in this browser context.');
+            showToast('Direct clipboard copy failed. Please use Download SVG.');
           });
         } catch {
-          showToast('Clipboard API error.');
+          showToast('Clipboard error.');
         }
       }, 'image/png');
     };
@@ -1223,16 +1283,36 @@ export function renderHomePage(): string {
   }
 
   function copySinglePng() {
-    if (currentSingleSvg) copySvgAsPng(currentSingleSvg);
+    if (currentSingleData && currentSingleData.qr_svg) {
+      copySvgAsPng(currentSingleData.qr_svg);
+    }
+  }
+
+  function viewCurrentSingleQr() {
+    if (!currentSingleData) return;
+    document.getElementById('modalQrTitle').innerText = 'Single Dynamic QR';
+    document.getElementById('modalQrSubtitle').innerText = 'ID: ' + currentSingleData.id + ' • ' + currentSingleData.short_url;
+    document.getElementById('modalTargetUrl').innerText = currentSingleData.target_url;
+    document.getElementById('modalSvgHolder').innerHTML = currentSingleData.qr_svg;
+    document.getElementById('modalRedirectBtn').href = currentSingleData.short_url;
+    document.getElementById('modalCopyBtn').onclick = () => copySvgAsPng(currentSingleData.qr_svg);
+    document.getElementById('modalDownloadBtn').onclick = () => {
+      const blob = new Blob([currentSingleData.qr_svg], { type: 'image/svg+xml' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'qr_' + currentSingleData.id + '.svg';
+      a.click();
+    };
+    openModal('viewQrModal');
   }
 
   function downloadSingleSvg() {
-    if (!currentSingleSvg) return;
-    const blob = new Blob([currentSingleSvg], { type: 'image/svg+xml' });
+    if (!currentSingleData || !currentSingleData.qr_svg) return;
+    const blob = new Blob([currentSingleData.qr_svg], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'qr-code.svg';
+    a.download = 'qr_' + currentSingleData.id + '.svg';
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -1283,7 +1363,7 @@ export function renderHomePage(): string {
     const btn = document.getElementById('startBatchBtn');
     const status = document.getElementById('batchStatusText');
     btn.disabled = true;
-    status.innerText = 'Processing ' + urls.length + ' URLs on Cloudflare Edge...';
+    status.innerText = 'Generating ' + urls.length + ' QR codes on Cloudflare Edge...';
 
     try {
       const res = await fetch('/api/bulk-create', {
@@ -1303,25 +1383,47 @@ export function renderHomePage(): string {
         return;
       }
 
-      status.innerText = 'Creating ZIP package...';
-      const zip = new JSZip();
-      let csv = 'filename,target_url,short_url\\n';
-
-      json.items.forEach((item, idx) => {
-        const filename = 'qr_' + (idx + 1) + '_' + item.id + '.svg';
-        zip.file(filename, item.qr_svg);
-        csv += filename + ',' + '"' + item.target_url.replace(/"/g, '""') + '",' + item.short_url + '\\n';
+      latestBatchItems = json.items || [];
+      document.getElementById('batchResultsTitle').innerText = '✓ ' + latestBatchItems.length + ' QR Codes Generated Live';
+      
+      let html = '';
+      latestBatchItems.forEach((item, idx) => {
+        html += \`
+          <tr>
+            <td><span class="serial-badge">#\${idx + 1}</span></td>
+            <td>
+              <div class="table-qr-thumb" onclick="viewBatchQrModal(\${idx})">
+                \${item.qr_svg}
+              </div>
+            </td>
+            <td><span class="id-badge">\${item.id}</span></td>
+            <td>
+              <div style="max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">
+                \${item.target_url}
+              </div>
+            </td>
+            <td style="text-align: right;">
+              <div class="table-actions" style="justify-content: flex-end;">
+                <button class="btn btn-primary btn-sm" onclick="copyBatchItemPng(\${idx})">
+                  📋 Copy PNG
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="viewBatchQrModal(\${idx})">
+                  🔍 View
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="downloadBatchItemSvg(\${idx})">
+                  ⬇️ SVG
+                </button>
+              </div>
+            </td>
+          </tr>
+        \`;
       });
 
-      zip.file('mapping.csv', csv);
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(zipBlob);
-      a.download = 'qr-forge-batch-' + json.items.length + '.zip';
-      a.click();
+      document.getElementById('batchResultsTableBody').innerHTML = html;
+      document.getElementById('batchResultsSection').style.display = 'block';
 
-      status.innerText = '✓ ' + json.items.length + ' QR codes exported in ZIP!';
-      showToast('Batch complete and ZIP downloaded!');
+      status.innerText = '✓ ' + latestBatchItems.length + ' QR codes ready on screen!';
+      showToast('All ' + latestBatchItems.length + ' QR codes generated! You can now view and copy any QR.');
       btn.disabled = false;
       refreshSystemTelemetry();
     } catch (err) {
@@ -1329,6 +1431,75 @@ export function renderHomePage(): string {
       btn.disabled = false;
       status.innerText = '';
     }
+  }
+
+  function copyBatchItemPng(idx) {
+    const item = latestBatchItems[idx];
+    if (item && item.qr_svg) {
+      copySvgAsPng(item.qr_svg);
+    }
+  }
+
+  function downloadBatchItemSvg(idx) {
+    const item = latestBatchItems[idx];
+    if (!item || !item.qr_svg) return;
+    const blob = new Blob([item.qr_svg], { type: 'image/svg+xml' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'qr_' + (idx + 1) + '_' + item.id + '.svg';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function viewBatchQrModal(idx) {
+    const item = latestBatchItems[idx];
+    if (!item) return;
+
+    document.getElementById('modalQrTitle').innerText = 'Batch QR #' + (idx + 1);
+    document.getElementById('modalQrSubtitle').innerText = 'ID: ' + item.id + ' • ' + item.short_url;
+    document.getElementById('modalTargetUrl').innerText = item.target_url;
+    document.getElementById('modalSvgHolder').innerHTML = item.qr_svg;
+    document.getElementById('modalRedirectBtn').href = item.short_url;
+    document.getElementById('modalCopyBtn').onclick = () => copySvgAsPng(item.qr_svg);
+    document.getElementById('modalDownloadBtn').onclick = () => downloadBatchItemSvg(idx);
+    openModal('viewQrModal');
+  }
+
+  async function downloadBatchZip() {
+    if (latestBatchItems.length === 0) return;
+    const status = document.getElementById('batchStatusText');
+    status.innerText = 'Packaging ZIP...';
+    
+    const zip = new JSZip();
+    let csv = 'filename,target_url,short_url\\n';
+
+    latestBatchItems.forEach((item, idx) => {
+      const filename = 'qr_' + (idx + 1) + '_' + item.id + '.svg';
+      zip.file(filename, item.qr_svg);
+      csv += filename + ',' + '"' + item.target_url.replace(/"/g, '""') + '",' + item.short_url + '\\n';
+    });
+
+    zip.file('mapping.csv', csv);
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(zipBlob);
+    a.download = 'qr-forge-batch-' + latestBatchItems.length + '.zip';
+    a.click();
+    status.innerText = '✓ ZIP downloaded!';
+  }
+
+  function downloadBatchCsv() {
+    if (latestBatchItems.length === 0) return;
+    let csv = 'filename,target_url,short_url\\n';
+    latestBatchItems.forEach((item, idx) => {
+      const filename = 'qr_' + (idx + 1) + '_' + item.id + '.svg';
+      csv += filename + ',' + '"' + item.target_url.replace(/"/g, '""') + '",' + item.short_url + '\\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'qr-mapping.csv';
+    a.click();
   }
 
   // --- 4. RECORDS DATABASE & INLINE EDITING ---
@@ -1347,7 +1518,7 @@ export function renderHomePage(): string {
     const limit = document.getElementById('recordLimit').value;
     const tbody = document.getElementById('recordsTableBody');
 
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--text-dim); padding: 1.5rem;">Fetching records...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: var(--text-dim); padding: 1.5rem;">Fetching records...</td></tr>';
 
     try {
       const q = new URLSearchParams({
@@ -1360,7 +1531,7 @@ export function renderHomePage(): string {
       const res = await fetch('/api/records?' + q.toString(), { headers: getHeaders() });
       const json = await res.json();
       if (!res.ok) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--danger);">' + (json.error || 'Failed to load records') + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: var(--danger);">' + (json.error || 'Failed to load records') + '</td></tr>';
         return;
       }
 
@@ -1372,7 +1543,7 @@ export function renderHomePage(): string {
       document.getElementById('nextPageBtn').disabled = json.page >= json.total_pages;
 
       if (loadedRecordsList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--text-dim); padding: 2rem;">No QR records found matching your filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: var(--text-dim); padding: 2rem;">No QR records found matching your filters.</td></tr>';
         return;
       }
 
@@ -1382,9 +1553,14 @@ export function renderHomePage(): string {
         html += \`
           <tr>
             <td><span class="serial-badge">#\${r.serial_number}</span></td>
+            <td>
+              <div class="table-qr-thumb" onclick="viewQrModal('\${r.id}')">
+                <img src="/qr/\${r.id}.svg" style="width:100%;height:100%;" alt="QR" />
+              </div>
+            </td>
             <td><span class="id-badge">\${r.id}</span></td>
             <td>
-              <div style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">
+              <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">
                 \${r.target_url}
               </div>
             </td>
@@ -1399,8 +1575,8 @@ export function renderHomePage(): string {
             </td>
             <td style="text-align: right;">
               <div class="table-actions" style="justify-content: flex-end;">
-                <button class="btn btn-secondary btn-sm" title="View Modal" onclick="viewQrModal('\${r.id}')">🔍</button>
-                <button class="btn btn-secondary btn-sm" title="Copy PNG" onclick="copyRecordPng('\${r.id}')">📋</button>
+                <button class="btn btn-primary btn-sm" title="Copy PNG to Clipboard" onclick="copyRecordPng('\${r.id}')">📋 Copy</button>
+                <button class="btn btn-secondary btn-sm" title="View QR Modal" onclick="viewQrModal('\${r.id}')">🔍</button>
                 <button class="btn btn-secondary btn-sm" title="Edit Destination" onclick="openEditModal('\${r.id}')">✏️</button>
                 <button class="btn btn-danger btn-sm" title="Delete" onclick="deleteRecord('\${r.id}')">🗑️</button>
               </div>
@@ -1410,7 +1586,7 @@ export function renderHomePage(): string {
       });
       tbody.innerHTML = html;
     } catch (err) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--danger);">Network error loading records</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: var(--danger);">Network error loading records</td></tr>';
     }
   }
 
@@ -1522,7 +1698,7 @@ export function renderHomePage(): string {
       });
 
       const json = await res.json();
-      if (data && json.success) {
+      if (json && json.success) {
         showToast('QR ' + id + ' deleted.');
         loadRecords(currentRecordPage);
         refreshSystemTelemetry();
