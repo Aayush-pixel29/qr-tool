@@ -378,4 +378,227 @@ app.post('/api/toggle/:id', async (c) => {
   }
 });
 
+/**
+ * 8. GET /api/system-stats → Live Cloudflare & Database quota telemetry
+ */
+app.get('/api/system-stats', async (c) => {
+  try {
+    if (!isAuthorized(c)) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const qrStats = await c.env.DB.prepare(
+      `SELECT 
+        COUNT(*) as total_qrs,
+        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_qrs,
+        SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_qrs,
+        SUM(scan_count) as total_scans,
+        SUM(unique_scan_count) as total_unique_scans
+       FROM qr_codes`
+    ).first<{
+      total_qrs: number;
+      active_qrs: number;
+      inactive_qrs: number;
+      total_scans: number;
+      total_unique_scans: number;
+    }>();
+
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const todayTimestamp = todayStart.getTime();
+
+    const todayLog = await c.env.DB.prepare(
+      'SELECT COUNT(*) as count FROM scan_log WHERE scanned_at >= ?'
+    )
+      .bind(todayTimestamp)
+      .first<{ count: number }>();
+
+    const totalQrs = qrStats?.total_qrs || 0;
+    const activeQrs = qrStats?.active_qrs || 0;
+    const inactiveQrs = qrStats?.inactive_qrs || 0;
+    const totalScans = qrStats?.total_scans || 0;
+    const totalUniqueScans = qrStats?.total_unique_scans || 0;
+    const scansToday = todayLog?.count || 0;
+
+    // Estimate storage: ~200 bytes per QR record + ~100 bytes per scan log
+    const estimatedDbBytes = (totalQrs * 200) + (totalScans * 100);
+    const estimatedDbMb = (estimatedDbBytes / (1024 * 1024)).toFixed(3);
+
+    // Cloudflare Free limits
+    const cfDailyLimit = 100000;
+    const cfD1LimitGb = 5;
+
+    return c.json({
+      success: true,
+      data: {
+        total_qrs: totalQrs,
+        active_qrs: activeQrs,
+        inactive_qrs: inactiveQrs,
+        total_scans: totalScans,
+        total_unique_scans: totalUniqueScans,
+        scans_today: scansToday,
+        estimated_db_mb: estimatedDbMb,
+        cf_daily_limit: cfDailyLimit,
+        cf_d1_limit_gb: cfD1LimitGb,
+        daily_percent_used: ((scansToday / cfDailyLimit) * 100).toFixed(2),
+        cost_status: '₹0 / month (100% Free Tier Covered)'
+      }
+    });
+  } catch (err: any) {
+    console.error('Error fetching system stats:', err);
+    return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  }
+});
+
+/**
+ * 9. GET /api/records → Fetch paginated QR records with search and filter
+ */
+app.get('/api/records', async (c) => {
+  try {
+    if (!isAuthorized(c)) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const page = Math.max(1, parseInt(c.req.query('page') || '1', 10));
+    const limit = Math.min(100, Math.max(5, parseInt(c.req.query('limit') || '25', 10)));
+    const offset = (page - 1) * limit;
+    const search = (c.req.query('search') || '').trim();
+    const status = c.req.query('status') || 'all';
+
+    let countQuery = 'SELECT COUNT(*) as total FROM qr_codes WHERE 1=1';
+    let dataQuery = 'SELECT * FROM qr_codes WHERE 1=1';
+    const params: any[] = [];
+
+    if (search) {
+      countQuery += ' AND (target_url LIKE ? OR id LIKE ?)';
+      dataQuery += ' AND (target_url LIKE ? OR id LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`);
+    }
+
+    if (status === 'active' || status === 'inactive') {
+      countQuery += ' AND status = ?';
+      dataQuery += ' AND status = ?';
+      params.push(status);
+    }
+
+    const totalRow = await c.env.DB.prepare(countQuery).bind(...params).first<{ total: number }>();
+    const totalRecords = totalRow?.total || 0;
+
+    dataQuery += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    const dataParams = [...params, limit, offset];
+
+    const { results } = await c.env.DB.prepare(dataQuery).bind(...dataParams).all<QRCodeRecord>();
+
+    const requestUrl = new URL(c.req.url);
+    const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+
+    const enriched = (results || []).map((r, index) => ({
+      ...r,
+      serial_number: totalRecords - offset - index,
+      short_url: `${baseUrl}/r/${r.id}`,
+      svg_url: `${baseUrl}/qr/${r.id}.svg`
+    }));
+
+    return c.json({
+      success: true,
+      total: totalRecords,
+      page,
+      limit,
+      total_pages: Math.ceil(totalRecords / limit) || 1,
+      records: enriched
+    });
+  } catch (err: any) {
+    console.error('Error fetching records:', err);
+    return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  }
+});
+
+/**
+ * 10. POST /api/edit/:id → Edit target URL, design, or status of a QR code
+ */
+app.post('/api/edit/:id', async (c) => {
+  try {
+    if (!isAuthorized(c)) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const id = c.req.param('id');
+    const body = await c.req.json<{
+      target_url?: string;
+      status?: 'active' | 'inactive';
+      design?: QRDesign;
+    }>();
+
+    const existing = await c.env.DB.prepare('SELECT * FROM qr_codes WHERE id = ?')
+      .bind(id)
+      .first<QRCodeRecord>();
+
+    if (!existing) {
+      return c.json({ error: 'QR Code not found' }, 404);
+    }
+
+    let targetUrl = existing.target_url;
+    if (body.target_url) {
+      let trimmed = body.target_url.trim();
+      if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+        trimmed = 'https://' + trimmed;
+      }
+      if (!isValidUrl(trimmed)) {
+        return c.json({ error: 'Invalid destination URL format' }, 400);
+      }
+      targetUrl = trimmed;
+    }
+
+    let status = existing.status;
+    if (body.status === 'active' || body.status === 'inactive') {
+      status = body.status;
+    }
+
+    let design = existing.design;
+    const validDesigns: QRDesign[] = ['classic', 'rounded', 'dots', 'gradient', 'logo'];
+    if (body.design && validDesigns.includes(body.design)) {
+      design = body.design;
+    }
+
+    await c.env.DB.prepare(
+      'UPDATE qr_codes SET target_url = ?, status = ?, design = ? WHERE id = ?'
+    )
+      .bind(targetUrl, status, design, id)
+      .run();
+
+    return c.json({
+      success: true,
+      id,
+      target_url: targetUrl,
+      status,
+      design
+    });
+  } catch (err: any) {
+    console.error('Error updating QR:', err);
+    return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  }
+});
+
+/**
+ * 11. DELETE /api/delete/:id → Delete a QR code and its scan logs
+ */
+app.delete('/api/delete/:id', async (c) => {
+  try {
+    if (!isAuthorized(c)) {
+      return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const id = c.req.param('id');
+    await c.env.DB.batch([
+      c.env.DB.prepare('DELETE FROM scan_log WHERE qr_id = ?').bind(id),
+      c.env.DB.prepare('DELETE FROM qr_codes WHERE id = ?').bind(id)
+    ]);
+
+    return c.json({ success: true, message: `QR Code ${id} and logs deleted.` });
+  } catch (err: any) {
+    console.error('Error deleting QR:', err);
+    return c.json({ error: err.message || 'Internal Server Error' }, 500);
+  }
+});
+
 export default app;

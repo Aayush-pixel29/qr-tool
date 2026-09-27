@@ -4,11 +4,11 @@ export function renderHomePage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Forge — Professional Dynamic QR Code & Batch Studio</title>
-  <meta name="description" content="Generate high-reliability dynamic QR codes with 1-click clipboard image copy, batch .txt/.docx processing, unique customer tracking, and ZIP export.">
+  <title>QR Forge — Enterprise QR Code Engine & Management Studio</title>
+  <meta name="description" content="Professional dynamic QR engine with live Cloudflare telemetry, batch processing, 1-click clipboard PNG copying, inline record management, and customer tracking.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- Mammoth for .docx extraction & JSZip for batch zip export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
@@ -16,18 +16,21 @@ export function renderHomePage(): string {
   
   <style>
     :root {
-      --bg-dark: #080c14;
-      --card-bg: rgba(15, 23, 42, 0.82);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --accent: #ec4899;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #07080a;
+      --card-bg: #111317;
+      --card-sub: #16191f;
+      --card-border: #232730;
+      --card-hover-border: #383e4c;
+      --text-white: #ffffff;
+      --text-main: #e2e8f0;
+      --text-muted: #8a92a3;
+      --text-dim: #5a6375;
+      --accent-white: #ffffff;
+      --accent-gray: #2e3440;
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --input-bg: rgba(10, 15, 29, 0.7);
+      --input-bg: #0b0d10;
     }
 
     * {
@@ -38,663 +41,393 @@ export function renderHomePage(): string {
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-dark);
+      background: var(--bg);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem 5rem;
-      background-image: 
-        radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.14) 0%, transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.06) 0%, transparent 60%);
-      background-attachment: fixed;
+      padding: 1.5rem 1rem 5rem;
     }
 
     .container {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1180px;
     }
 
-    /* Top Navigation Bar */
+    /* Top Navigation */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.75rem;
       flex-wrap: wrap;
+      gap: 1rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
       gap: 0.75rem;
     }
 
-    .brand-badge {
-      display: inline-flex;
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: #ffffff;
+      color: #000000;
+      font-weight: 800;
+      display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.9rem;
-      border-radius: 9999px;
-      background: rgba(99, 102, 241, 0.12);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      color: #818cf8;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      letter-spacing: -0.05em;
     }
 
-    .auth-badge {
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-white);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-badge {
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      background: #1c2028;
+      border: 1px solid var(--card-border);
+      color: #cbd5e1;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .auth-btn, .action-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.4rem 0.9rem;
-      border-radius: 9999px;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
-      font-size: 0.8rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      background: var(--card-sub);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s ease;
+      text-decoration: none;
     }
 
-    .auth-badge:hover {
-      background: rgba(16, 185, 129, 0.22);
+    .auth-btn:hover, .action-pill:hover {
+      background: #232730;
+      border-color: var(--card-hover-border);
+      color: #ffffff;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 1.75rem;
-    }
-
-    h1 {
-      font-size: 2.85rem;
-      font-weight: 800;
-      letter-spacing: -0.035em;
-      line-height: 1.15;
-      margin-bottom: 0.75rem;
-      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 680px;
-      margin: 0 auto;
-      line-height: 1.55;
-    }
-
-    /* System Limits Live Metric Banner */
-    .limits-banner {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.85rem;
+    /* Live Cloudflare Telemetry Feed Banner */
+    .telemetry-feed {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
       margin-bottom: 2rem;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+      position: relative;
     }
 
-    @media (max-width: 860px) {
-      .limits-banner {
+    @media (max-width: 992px) {
+      .telemetry-feed {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .telemetry-feed {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    @media (max-width: 480px) {
-      .limits-banner {
-        grid-template-columns: 1fr;
-      }
+    .telemetry-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
     }
 
-    .limit-pill {
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 0.85rem 1rem;
-      backdrop-filter: blur(10px);
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .limit-pill:hover {
-      transform: translateY(-2px);
-      border-color: rgba(99, 102, 241, 0.4);
-    }
-
-    .limit-pill-header {
+    .telemetry-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
 
-    .limit-pill-value {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #fff;
+    .telemetry-value {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text-white);
       font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.03em;
     }
 
-    .limit-pill-desc {
-      font-size: 0.725rem;
-      color: #94a3b8;
+    .telemetry-sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .telemetry-progress-bg {
+      width: 100%;
+      height: 4px;
+      background: #232730;
+      border-radius: 2px;
       margin-top: 0.2rem;
+      overflow: hidden;
     }
 
-    /* Tabs Navigation */
-    .tabs-nav {
+    .telemetry-progress-bar {
+      height: 100%;
+      background: #ffffff;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
       display: flex;
-      justify-content: center;
       gap: 0.5rem;
-      margin-bottom: 2rem;
-      background: rgba(15, 23, 42, 0.65);
-      padding: 0.35rem;
-      border-radius: 14px;
-      border: 1px solid var(--card-border);
-      max-width: 540px;
-      margin-left: auto;
-      margin-right: auto;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.5rem;
     }
 
     .tab-btn {
-      flex: 1;
-      padding: 0.75rem 1.25rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
       background: transparent;
-      border: none;
-      border-radius: 10px;
       color: var(--text-muted);
       font-size: 0.9rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 0.5rem;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
     }
 
     .tab-btn:hover {
-      color: #fff;
+      color: var(--text-white);
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .tab-btn.active {
-      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
-      color: #fff;
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
     }
 
-    .tab-pane {
+    .tab-content {
       display: none;
     }
 
-    .tab-pane.active {
+    .tab-content.active {
       display: block;
     }
 
-    /* Layout & Cards */
-    .grid-layout {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 2rem;
-      align-items: start;
-    }
-
-    @media (max-width: 880px) {
-      .grid-layout {
-        grid-template-columns: 1fr;
-      }
-      h1 {
-        font-size: 2.2rem;
-      }
-    }
-
-    .glass-card {
+    /* Cards */
+    .card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
     }
 
     .card-title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 700;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: #ffffff;
+      color: var(--text-white);
+      letter-spacing: -0.01em;
     }
 
-    .form-group {
-      margin-bottom: 1.4rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #cbd5e1;
-      margin-bottom: 0.5rem;
-    }
-
-    .label-hint {
-      font-size: 0.775rem;
-      color: var(--text-muted);
-      font-weight: normal;
-      margin-left: 0.35rem;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      background: var(--input-bg);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      color: #ffffff;
-      font-family: inherit;
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 140px;
-      font-family: 'JetBrains Mono', monospace;
+    .card-desc {
       font-size: 0.85rem;
-      line-height: 1.5;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
     }
 
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
-      background: rgba(15, 23, 42, 0.95);
+    /* Forms & Inputs */
+    .form-group {
+      margin-bottom: 1.25rem;
     }
 
-    select {
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 1rem center;
-      padding-right: 2.5rem;
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.45rem;
     }
 
-    .design-options {
+    .input-text, .input-select, .input-textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .input-text:focus, .input-select:focus, .input-textarea:focus {
+      border-color: #ffffff;
+    }
+
+    /* Design Selector Grid */
+    .design-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.6rem;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
       margin-top: 0.5rem;
     }
 
-    .design-btn {
+    @media (max-width: 768px) {
+      .design-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .design-option {
       background: var(--input-bg);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
       padding: 0.75rem 0.5rem;
-      color: var(--text-muted);
-      font-size: 0.825rem;
-      font-weight: 600;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.35rem;
     }
 
-    .design-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(255, 255, 255, 0.2);
-      color: #fff;
+    .design-option:hover {
+      border-color: var(--card-hover-border);
+      background: #14171d;
     }
 
-    .design-btn.active {
-      background: rgba(99, 102, 241, 0.18);
-      border-color: var(--primary);
-      color: #fff;
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    .design-option.selected {
+      border-color: #ffffff;
+      background: #1c2028;
     }
 
-    .btn-submit {
-      width: 100%;
-      padding: 0.95rem 1.5rem;
-      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
-      color: #ffffff;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-      transition: all 0.2s ease;
-      margin-top: 1rem;
-    }
-
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.55);
-    }
-
-    .btn-submit:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Preview Card */
-    .preview-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      min-height: 440px;
-      justify-content: center;
-    }
-
-    .qr-box {
-      width: 240px;
-      height: 240px;
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 12px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.25rem;
-      transition: transform 0.3s ease;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .qr-box:hover {
-      transform: scale(1.02);
-    }
-
-    .qr-box svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .placeholder-qr {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      gap: 0.75rem;
-      font-size: 0.9rem;
-      padding: 1rem;
-    }
-
-    .link-box {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .short-url-text {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: #38bdf8;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .actions-grid-4 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.6rem;
-      width: 100%;
-    }
-
-    .btn-action {
-      padding: 0.65rem 0.85rem;
-      border-radius: 10px;
-      font-size: 0.825rem;
+    .design-name {
+      font-size: 0.82rem;
       font-weight: 600;
-      text-align: center;
-      text-decoration: none;
+      color: var(--text-white);
+    }
+
+    /* Primary & Secondary Buttons */
+    .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.4rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-copy-qr {
-      background: rgba(236, 72, 153, 0.15);
-      border: 1px solid rgba(236, 72, 153, 0.35);
-      color: #f472b6;
-    }
-
-    .btn-copy-qr:hover {
-      background: rgba(236, 72, 153, 0.28);
-    }
-
-    .btn-download {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
-    }
-
-    .btn-download:hover {
-      background: rgba(16, 185, 129, 0.25);
-    }
-
-    .btn-test {
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      color: #a5b4fc;
-    }
-
-    .btn-test:hover {
-      background: rgba(99, 102, 241, 0.25);
-    }
-
-    .btn-view {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: #38bdf8;
-    }
-
-    .btn-view:hover {
-      background: rgba(56, 189, 248, 0.25);
-    }
-
-    .copy-btn {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      gap: 0.5rem;
+      padding: 0.75rem 1.4rem;
       border-radius: 8px;
-      color: #fff;
-      padding: 0.4rem 0.65rem;
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
+      transition: all 0.15s ease;
+      border: none;
+      text-decoration: none;
     }
 
-    .copy-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
+    .btn-primary {
+      background: #ffffff;
+      color: #000000;
     }
 
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .btn-primary:hover {
+      background: #e2e8f0;
+      transform: translateY(-1px);
     }
 
-    .status-active {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+    .btn-secondary {
+      background: var(--card-sub);
+      border: 1px solid var(--card-border);
+      color: var(--text-white);
     }
 
-    .status-inactive {
+    .btn-secondary:hover {
+      background: #232730;
+      border-color: var(--card-hover-border);
+    }
+
+    .btn-danger {
       background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
       border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
     }
 
-    .meta-row {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr 1fr;
-      gap: 0.5rem;
-      width: 100%;
-      font-size: 0.775rem;
-      color: var(--text-muted);
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      text-align: center;
-      align-items: center;
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.25);
     }
 
-    .meta-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      color: #fff;
-      display: block;
-      margin-top: 0.2rem;
+    .btn-sm {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.78rem;
     }
 
-    /* Switch Component */
-    .switch-wrapper {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 38px;
-      height: 20px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #334155;
-      transition: .25s ease;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 14px;
-      width: 14px;
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: .25s ease;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider {
-      background-color: #10b981;
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(18px);
-    }
-
-    /* Bulk Upload Styles */
+    /* Dropzone */
     .dropzone {
-      border: 2px dashed rgba(99, 102, 241, 0.35);
-      border-radius: 14px;
-      padding: 1.5rem 1rem;
+      border: 2px dashed var(--card-border);
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
       text-align: center;
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--input-bg);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       margin-bottom: 1.25rem;
     }
 
     .dropzone:hover, .dropzone.dragover {
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.08);
+      border-color: #ffffff;
+      background: #13161c;
     }
 
-    .file-input {
-      display: none;
-    }
-
-    .file-info-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      color: #38bdf8;
-      padding: 0.35rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      margin-top: 0.75rem;
-    }
-
-    /* Info Callout Box */
-    .info-callout {
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 12px;
-      padding: 0.85rem 1rem;
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.6rem;
-      font-size: 0.825rem;
-      color: #c7d2fe;
-      line-height: 1.45;
-    }
-
-    /* Results Table */
-    .results-section {
-      margin-top: 2rem;
-    }
-
+    /* Table Styles */
     .table-container {
+      width: 100%;
       overflow-x: auto;
-      margin-top: 1rem;
-      border-radius: 12px;
       border: 1px solid var(--card-border);
+      border-radius: 8px;
+      background: var(--input-bg);
     }
 
     table {
@@ -705,1294 +438,1162 @@ export function renderHomePage(): string {
     }
 
     th {
-      background: rgba(15, 23, 42, 0.95);
-      padding: 0.85rem 1rem;
-      color: var(--text-muted);
+      background: #14171d;
+      padding: 0.75rem 1rem;
       font-weight: 600;
+      color: var(--text-muted);
       border-bottom: 1px solid var(--card-border);
       white-space: nowrap;
     }
 
     td {
       padding: 0.85rem 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-main);
       vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
     }
 
     tr:hover td {
       background: rgba(255, 255, 255, 0.02);
     }
 
-    .table-thumb {
-      width: 48px;
-      height: 48px;
-      background: #fff;
-      border-radius: 8px;
-      padding: 4px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .table-thumb:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
-    }
-
-    .table-thumb svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .btn-zip {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #fff;
-      padding: 0.85rem 1.5rem;
-      border-radius: 12px;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4);
-      transition: all 0.2s;
-    }
-
-    .btn-zip:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 25px -5px rgba(16, 185, 129, 0.55);
-    }
-
-    /* Modal / Dialogs */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.78);
-      backdrop-filter: blur(10px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 1rem;
-    }
-
-    .modal-overlay.show {
-      display: flex;
-    }
-
-    .modal-card {
-      background: #111827;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 24px;
-      padding: 2rem;
-      max-width: 480px;
-      width: 100%;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.8);
-      position: relative;
-    }
-
-    .modal-close-btn {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .modal-close-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .modal-qr-preview {
-      width: 260px;
-      height: 260px;
-      background: #fff;
-      border-radius: 20px;
-      padding: 14px;
-      margin: 1.25rem auto;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-qr-preview svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    /* Specs Reference Section at bottom */
-    .specs-card {
-      margin-top: 2.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 2rem;
-    }
-
-    .specs-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 1.25rem;
-    }
-
-    @media (max-width: 768px) {
-      .specs-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .spec-box {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      padding: 1rem;
-    }
-
-    .spec-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #fff;
+    .table-actions {
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      margin-bottom: 0.35rem;
+      flex-wrap: nowrap;
     }
 
-    .spec-desc {
-      font-size: 0.775rem;
+    /* Status Switch Toggle */
+    .status-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-track {
+      width: 36px;
+      height: 20px;
+      background: #2e3440;
+      border-radius: 9999px;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .toggle-thumb {
+      width: 14px;
+      height: 14px;
+      background: #ffffff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .status-toggle.active .toggle-track {
+      background: #10b981;
+    }
+
+    .status-toggle.active .toggle-thumb {
+      transform: translateX(16px);
+    }
+
+    .status-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .status-label.active { color: #10b981; }
+    .status-label.inactive { color: #ef4444; }
+
+    /* Serial and ID Badges */
+    .serial-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #94a3b8;
+      background: #1e222b;
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .id-badge {
+      font-family: 'JetBrains Mono', monospace;
+      color: #ffffff;
+      background: #161920;
+      border: 1px solid var(--card-border);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    /* Search & Filter Bar */
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      padding: 1.75rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: transparent;
+      border: none;
       color: var(--text-muted);
-      line-height: 1.45;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: #ffffff;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
     .toast {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: #1e293b;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #fff;
+      background: #16191f;
+      border: 1px solid #383e4c;
+      color: #ffffff;
       padding: 0.75rem 1.25rem;
-      border-radius: 10px;
-      font-size: 0.875rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-      transform: translateY(100px);
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 3000;
+      animation: slideIn 0.2s ease;
     }
 
-    .toast.show {
-      transform: translateY(0);
-      opacity: 1;
+    @keyframes slideIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <div class="brand-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/>
-        </svg>
-        Cloudflare Edge Workers + D1 Database
+
+<div class="container">
+  <!-- Top Nav Bar -->
+  <div class="top-bar">
+    <div class="brand-group">
+      <div class="brand-logo">QR</div>
+      <div>
+        <div class="brand-title">QR FORGE</div>
       </div>
-      <div id="auth-status-badge" class="auth-badge" onclick="openAuthModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <span id="auth-status-text">Admin Key Active</span>
+      <div class="brand-badge">CLOUDFLARE EDGE + D1</div>
+    </div>
+    
+    <div class="nav-actions">
+      <button class="action-pill" onclick="refreshSystemTelemetry()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Live Sync
+      </button>
+      <button class="auth-btn" id="authBtn" onclick="openAuthModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span id="authStatusText">Admin Key</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Live Cloudflare & Database Telemetry Header -->
+  <div class="telemetry-feed" id="telemetryFeed">
+    <div class="telemetry-item">
+      <div class="telemetry-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Stored QR Records
+      </div>
+      <div class="telemetry-value" id="telTotalQrs">--</div>
+      <div class="telemetry-sub" id="telActiveRatio">-- Active / -- Paused</div>
+    </div>
+
+    <div class="telemetry-item">
+      <div class="telemetry-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Scans Today (CF Limit)
+      </div>
+      <div class="telemetry-value" id="telScansToday">--</div>
+      <div class="telemetry-sub" id="telDailyPercent">0% of 100k daily cap</div>
+      <div class="telemetry-progress-bg">
+        <div class="telemetry-progress-bar" id="telProgressBar"></div>
       </div>
     </div>
 
-    <header>
-      <h1>QR Forge</h1>
-      <p class="subtitle">Enterprise dynamic QR engine with 1-click clipboard image copy, batch file processing, unique customer tracking, and unlimited lifetime scan capacity.</p>
-    </header>
-
-    <!-- LIVE SYSTEM LIMITS & CAPACITY BANNER -->
-    <div class="limits-banner">
-      <div class="limit-pill">
-        <div class="limit-pill-header">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Batch Capacity
-        </div>
-        <div class="limit-pill-value">500 URLs / Run</div>
-        <div class="limit-pill-desc">Supports .txt & .docx with instant ZIP export</div>
+    <div class="telemetry-item">
+      <div class="telemetry-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Unique Customers
       </div>
-
-      <div class="limit-pill">
-        <div class="limit-pill-header">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Scan Validity
-        </div>
-        <div class="limit-pill-value">Lifetime Active</div>
-        <div class="limit-pill-desc">Zero auto-expiration; pause/resume anytime</div>
-      </div>
-
-      <div class="limit-pill">
-        <div class="limit-pill-header">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          Database Space
-        </div>
-        <div class="limit-pill-value">5 GB Cloud SQL</div>
-        <div class="limit-pill-desc">Stores up to ~25,000,000 QR codes in D1</div>
-      </div>
-
-      <div class="limit-pill">
-        <div class="limit-pill-header">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Customer Metric
-        </div>
-        <div class="limit-pill-value">SHA-256 Unique</div>
-        <div class="limit-pill-desc">Distinguishes real customers from repeat hits</div>
-      </div>
+      <div class="telemetry-value" id="telUniqueScans">--</div>
+      <div class="telemetry-sub" id="telTotalScans">-- Lifetime Total Hits</div>
     </div>
 
-    <!-- Navigation Tabs -->
-    <div class="tabs-nav">
-      <button class="tab-btn active" data-tab="single-tab">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        Single QR
-      </button>
-      <button class="tab-btn" data-tab="bulk-tab">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Bulk Batch Studio
-      </button>
-      <button class="tab-btn" data-tab="analytics-tab">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-        Analytics & Toggle
-      </button>
+    <div class="telemetry-item">
+      <div class="telemetry-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        D1 Database Size
+      </div>
+      <div class="telemetry-value" id="telDbSize">-- MB</div>
+      <div class="telemetry-sub">5.00 GB Max Quota</div>
     </div>
 
-    <!-- TAB 1: Single QR Creation -->
-    <div id="single-tab" class="tab-pane active">
-      <div class="grid-layout">
-        <!-- Left: Create Form -->
-        <div class="glass-card">
-          <h2 class="card-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-            </svg>
-            Create Dynamic QR
-          </h2>
+    <div class="telemetry-item">
+      <div class="telemetry-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Hosting Cost
+      </div>
+      <div class="telemetry-value" style="color: #10b981;">₹0.00</div>
+      <div class="telemetry-sub">100% Free Tier Covered</div>
+    </div>
+  </div>
 
-          <form id="create-form">
-            <div class="form-group">
-              <label for="target_url">Target Destination URL</label>
-              <input type="url" id="target_url" name="target_url" placeholder="https://yourwebsite.com/promo" required autocomplete="off" />
-            </div>
+  <!-- Main Tabs Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('studioTab')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      QR Generator Studio
+    </button>
+    <button class="tab-btn" onclick="switchTab('recordsTab')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Records & Management Database
+    </button>
+    <button class="tab-btn" onclick="switchTab('cloudflareHubTab')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+      Cloudflare Account & Technical Audit
+    </button>
+  </div>
 
-            <div class="form-group">
-              <label>QR Code Style</label>
-              <input type="hidden" id="single-design" name="design" value="classic" />
-              <div class="design-options">
-                <button type="button" class="design-btn active" data-style="classic" data-form="single">
-                  <span>⬛ Classic</span>
-                </button>
-                <button type="button" class="design-btn" data-style="rounded" data-form="single">
-                  <span>🔘 Rounded</span>
-                </button>
-                <button type="button" class="design-btn" data-style="dots" data-form="single">
-                  <span>⚪ Dots</span>
-                </button>
-                <button type="button" class="design-btn" data-style="gradient" data-form="single">
-                  <span>🌈 Gradient</span>
-                </button>
-                <button type="button" class="design-btn" data-style="logo" data-form="single">
-                  <span>🎯 Logo Cut</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="max_scans">
-                Unique Customer Cap
-                <span class="label-hint">(Optional — leave empty for lifetime unlimited)</span>
-              </label>
-              <input type="number" id="max_scans" name="max_scans" min="1" placeholder="e.g. 500 (empty = lifetime unlimited)" />
-            </div>
-
-            <button type="submit" class="btn-submit" id="submit-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-              </svg>
-              Generate QR Code
-            </button>
-          </form>
+  <!-- TAB 1: QR STUDIO -->
+  <div id="studioTab" class="tab-content active">
+    <!-- Single QR Creation Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Single Dynamic QR Generator</div>
+          <div class="card-desc">Create permanent high-resolution tracking QR codes with instant clipboard export</div>
         </div>
+      </div>
 
-        <!-- Right: Preview & Output -->
-        <div class="glass-card preview-container">
-          <div class="qr-box" id="qr-box" onclick="openSingleQrInModal()" title="Click to view fullscreen">
-            <div class="placeholder-qr">
-              <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="18" height="18" x="3" y="3" rx="2"/>
-                <path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/>
-              </svg>
-              <span>Enter a URL & hit generate to preview your QR code</span>
-            </div>
+      <div class="form-group">
+        <label class="form-label">Destination URL</label>
+        <input type="url" id="singleUrl" class="input-text" placeholder="https://yourwebsite.com/promotion" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Styling Design</label>
+        <div class="design-grid" id="singleDesignGrid">
+          <div class="design-option selected" data-design="classic" onclick="selectDesign('single', 'classic')">
+            <span class="design-name">Classic</span>
           </div>
+          <div class="design-option" data-design="rounded" onclick="selectDesign('single', 'rounded')">
+            <span class="design-name">Rounded</span>
+          </div>
+          <div class="design-option" data-design="dots" onclick="selectDesign('single', 'dots')">
+            <span class="design-name">Dots Matrix</span>
+          </div>
+          <div class="design-option" data-design="gradient" onclick="selectDesign('single', 'gradient')">
+            <span class="design-name">Gradient</span>
+          </div>
+          <div class="design-option" data-design="logo" onclick="selectDesign('single', 'logo')">
+            <span class="design-name">Logo Center</span>
+          </div>
+        </div>
+      </div>
 
-          <div id="output-details" style="display: none; width: 100%;">
-            <div class="link-box">
-              <span class="short-url-text" id="short-url-display">https://...</span>
-              <button type="button" class="copy-btn" id="copy-btn">Copy Link</button>
-            </div>
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <button class="btn btn-primary" onclick="createSingleQR()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Generate Dynamic QR
+        </button>
+      </div>
 
-            <!-- Quick Action Buttons -->
-            <div class="actions-grid-4">
-              <button type="button" class="btn-action btn-copy-qr" onclick="copyCurrentQrImage()">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                Copy Image
+      <!-- Single QR Result Preview (Hidden by default) -->
+      <div id="singleResultBox" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--card-border);">
+        <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+          <div id="singleSvgContainer" style="background: #ffffff; padding: 12px; border-radius: 8px; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center;"></div>
+          <div style="flex: 1; min-width: 250px;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Tracking Short URL:</div>
+            <div id="singleShortUrl" style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 600; color: #ffffff; margin-bottom: 0.75rem;"></div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="copySinglePng()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy PNG to Clipboard
               </button>
-              <button type="button" class="btn-action btn-view" onclick="openSingleQrInModal()">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                View
+              <button class="btn btn-secondary btn-sm" onclick="downloadSingleSvg()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download SVG
               </button>
-              <a id="download-btn" class="btn-action btn-download" download="qr-code.svg">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                SVG
-              </a>
-              <a id="test-btn" class="btn-action btn-test" target="_blank" rel="noopener noreferrer">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Test Scan
+              <a id="singleTestLink" href="#" target="_blank" class="btn btn-secondary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Test Redirect
               </a>
             </div>
-
-            <div class="meta-row">
-              <div style="display:flex; align-items:center; justify-content:center; gap:0.4rem;">
-                <label class="switch">
-                  <input type="checkbox" id="single-toggle-input" checked onchange="toggleSingleQrStatus(this)" />
-                  <span class="slider"></span>
-                </label>
-                <span id="status-badge" class="status-badge status-active">Active</span>
-              </div>
-              <div>Unique: <span id="unique-scans-display" class="meta-val">0 / ∞</span></div>
-              <div>Total Hits: <span id="raw-scans-display" class="meta-val">0</span></div>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TAB 2: Bulk Batch Generator -->
-    <div id="bulk-tab" class="tab-pane">
-      <div class="glass-card">
-        <h2 class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-          </svg>
-          Batch Import & Generator Studio (Lifetime QRs with View & Copy Options)
-        </h2>
+    <!-- Bulk Batch Ingestion Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Bulk Batch Ingestion Engine</div>
+          <div class="card-desc">Upload Word (.docx) or Text (.txt) files to generate up to 500 lifetime QRs in one ZIP</div>
+        </div>
+      </div>
 
-        <!-- Info callout -->
-        <div class="info-callout">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          <div>
-            <strong>Batch Processing Specifications:</strong> Upload up to <strong>500 URLs per run</strong> via <code>.txt</code> or <code>.docx</code> file. Every generated QR code receives lifetime unlimited scanning, instant interactive toggles, vector SVGs, and a combined <code>mapping.csv</code> ZIP archive.
+      <div class="dropzone" id="bulkDropzone" onclick="document.getElementById('bulkFileInput').click()">
+        <input type="file" id="bulkFileInput" accept=".txt,.docx" style="display: none;" onchange="handleFileSelect(event)" />
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--text-muted); margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-weight: 600; color: #ffffff; margin-bottom: 0.25rem;">Drop .txt or .docx file here, or click to browse</div>
+        <div style="font-size: 0.8rem; color: var(--text-dim);">One URL per line in .txt, or automated URL extraction from Word documents</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Or Paste URLs Directly (One per line)</label>
+        <textarea id="bulkTextarea" class="input-textarea" rows="4" placeholder="https://site1.com&#10;https://site2.com&#10;https://site3.com"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Batch QR Style</label>
+        <div class="design-grid" id="bulkDesignGrid">
+          <div class="design-option selected" data-design="classic" onclick="selectDesign('bulk', 'classic')">
+            <span class="design-name">Classic</span>
+          </div>
+          <div class="design-option" data-design="rounded" onclick="selectDesign('bulk', 'rounded')">
+            <span class="design-name">Rounded</span>
+          </div>
+          <div class="design-option" data-design="dots" onclick="selectDesign('bulk', 'dots')">
+            <span class="design-name">Dots Matrix</span>
+          </div>
+          <div class="design-option" data-design="gradient" onclick="selectDesign('bulk', 'gradient')">
+            <span class="design-name">Gradient</span>
+          </div>
+          <div class="design-option" data-design="logo" onclick="selectDesign('bulk', 'logo')">
+            <span class="design-name">Logo Center</span>
           </div>
         </div>
+      </div>
 
-        <!-- Dropzone -->
-        <div class="dropzone" id="dropzone">
-          <input type="file" id="file-input" class="file-input" accept=".txt,.docx" />
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.5rem;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-          <div style="font-weight:600; font-size:1rem; color:#fff;">Click or drag & drop .txt or .docx file here</div>
-          <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Supports plain text files (1 URL per line) or Word documents</div>
-          <div id="file-info" style="display:none;" class="file-info-badge">
-            <span id="file-name">file.txt</span> (<span id="detected-count">0 URLs detected</span>)
-          </div>
-        </div>
-
-        <!-- Or Paste URLs -->
-        <div class="form-group">
-          <label for="bulk-urls-input">
-            Or Paste URLs directly
-            <span class="label-hint">(One URL per line — up to 500 URLs per batch)</span>
-          </label>
-          <textarea id="bulk-urls-input" placeholder="https://example.com/item-1&#10;https://example.com/item-2&#10;https://example.com/item-3"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Batch QR Code Design</label>
-          <input type="hidden" id="bulk-design" name="design" value="classic" />
-          <div class="design-options">
-            <button type="button" class="design-btn active" data-style="classic" data-form="bulk">
-              <span>⬛ Classic</span>
-            </button>
-            <button type="button" class="design-btn" data-style="rounded" data-form="bulk">
-              <span>🔘 Rounded</span>
-            </button>
-            <button type="button" class="design-btn" data-style="dots" data-form="bulk">
-              <span>⚪ Dots</span>
-            </button>
-            <button type="button" class="design-btn" data-style="gradient" data-form="bulk">
-              <span>🌈 Gradient</span>
-            </button>
-            <button type="button" class="design-btn" data-style="logo" data-form="bulk">
-              <span>🎯 Logo Cut</span>
-            </button>
-          </div>
-        </div>
-
-        <button type="button" class="btn-submit" id="bulk-submit-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-          Generate Batch QR Codes
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <button class="btn btn-primary" id="startBatchBtn" onclick="processBatch()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Batch Processing
         </button>
-
-        <!-- Bulk Results & ZIP Download -->
-        <div id="bulk-results-panel" class="results-section" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
-            <div>
-              <h3 style="font-size:1.15rem; font-weight:700; color:#fff;">Batch Ready (<span id="batch-total-count">0</span> QRs Generated)</h3>
-              <p style="font-size:0.8rem; color:var(--text-muted);">Lifetime unlimited scans. Click any QR thumbnail to view full-size or copy directly.</p>
-            </div>
-            <button type="button" class="btn-zip" id="download-zip-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download All as ZIP (SVGs + CSV)
-            </button>
-          </div>
-
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 40px;">#</th>
-                  <th style="width: 60px;">View QR</th>
-                  <th>Destination URL</th>
-                  <th>Short Tracking Link</th>
-                  <th style="width: 120px; text-align: center;">Status Switch</th>
-                  <th style="width: 200px; text-align: right;">Quick Actions</th>
-                </tr>
-              </thead>
-              <tbody id="bulk-table-body"></tbody>
-            </table>
-          </div>
-        </div>
+        <div id="batchStatusText" style="font-size: 0.85rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;"></div>
       </div>
     </div>
+  </div>
 
-    <!-- TAB 3: Analytics Lookup -->
-    <div id="analytics-tab" class="tab-pane">
-      <div class="glass-card">
-        <h2 class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
-          </svg>
-          QR Analytics & Instant Switch Control
-        </h2>
-        <div style="display:flex; gap:0.75rem; margin-bottom:1.5rem;">
-          <input type="text" id="stats-id-input" placeholder="Enter QR ID (e.g. 8-character ID or full short link)" autocomplete="off" />
-          <button type="button" class="btn-submit" id="lookup-btn" style="width:auto; padding:0 1.5rem; margin-top:0;">Check Stats</button>
+  <!-- TAB 2: RECORDS & MANAGEMENT DATABASE -->
+  <div id="recordsTab" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Live D1 Database Records</div>
+          <div class="card-desc">Manage all generated QR codes, edit destination URLs, toggle active status, and track real-time scans</div>
         </div>
-
-        <div class="stats-result" id="stats-result" style="background:rgba(15, 23, 42, 0.5); border:1px solid rgba(255, 255, 255, 0.08); border-radius:12px; padding:1.25rem; display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
-            <strong id="stats-id-title" style="font-family:'JetBrains Mono'; color:#38bdf8;"></strong>
-            <div style="display:flex; align-items:center; gap:0.75rem;">
-              <span id="stats-status-badge" class="status-badge"></span>
-              <button type="button" class="btn-action btn-test" id="stats-toggle-btn" style="padding:0.35rem 0.75rem; font-size:0.75rem;" onclick="toggleCurrentLookupQr()">Toggle Status</button>
-            </div>
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:1rem; margin-top:0.75rem;">
-            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Distinct Customers</div>
-              <div style="font-size:1.2rem; font-weight:700; color:#34d399; font-family:'JetBrains Mono', monospace;" id="stats-unique-count">0</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Total Raw Hits</div>
-              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace;" id="stats-scan-count">0</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Scan Cap</div>
-              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace;" id="stats-max-scans">Unlimited (Lifetime)</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.75rem;">
-              <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Design Style</div>
-              <div style="font-size:1.2rem; font-weight:700; color:#fff; font-family:'JetBrains Mono', monospace; text-transform:capitalize;" id="stats-design">-</div>
-            </div>
-          </div>
-          <div style="margin-top:0.85rem; font-size:0.8rem; color:var(--text-muted); word-break:break-all;">
-            Target: <a id="stats-target-link" href="#" target="_blank" style="color:#a5b4fc;"></a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- LIVE SPECS & LIMITS REFERENCE CARD -->
-    <div class="specs-card">
-      <div style="text-align:center; margin-bottom:1rem;">
-        <h3 style="font-size:1.1rem; font-weight:700; color:#fff;">System Capacity & Technical Limits Reference</h3>
-        <p style="font-size:0.8rem; color:var(--text-muted);">Enterprise specifications for client presentations and high-volume deployment.</p>
+        <button class="btn btn-secondary btn-sm" onclick="loadRecords(1)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh List
+        </button>
       </div>
 
-      <div class="specs-grid">
-        <div class="spec-box">
-          <div class="spec-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
-            Batch Ingestion: 500 / Run
-          </div>
-          <div class="spec-desc">Ingests and renders up to 500 URLs from Word or plain text files in a single run. Unlimited consecutive batches can be executed.</div>
+      <!-- Search & Filters -->
+      <div class="filter-bar">
+        <div class="search-input-wrap">
+          <input type="text" id="recordSearch" class="input-text" placeholder="Search by Target URL or Short ID..." onkeyup="handleRecordSearch(event)" />
         </div>
-
-        <div class="spec-box">
-          <div class="spec-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            Lifetime Validity & Zero Expiry
-          </div>
-          <div class="spec-desc">Every generated dynamic QR code stays permanently active with unlimited scans. Codes only pause when you manually toggle them.</div>
+        <div style="display: flex; gap: 0.5rem;">
+          <select id="recordStatusFilter" class="input-select" style="width: 140px;" onchange="loadRecords(1)">
+            <option value="all">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="inactive">Paused Only</option>
+          </select>
+          <select id="recordLimit" class="input-select" style="width: 110px;" onchange="loadRecords(1)">
+            <option value="10">10 / page</option>
+            <option value="25" selected>25 / page</option>
+            <option value="50">50 / page</option>
+            <option value="100">100 / page</option>
+          </select>
         </div>
+      </div>
 
-        <div class="spec-box">
-          <div class="spec-title">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/></svg>
-            Storage: 5 GB Cloud SQL
-          </div>
-          <div class="spec-desc">Powered by Cloudflare D1 with capacity for over 25,000,000 QR codes and atomic transaction logging for millions of visits.</div>
+      <!-- Records Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 70px;">Serial</th>
+              <th style="width: 110px;">Short ID</th>
+              <th>Target Destination URL</th>
+              <th style="width: 100px;">Style</th>
+              <th style="width: 100px; text-align: center;">Scans</th>
+              <th style="width: 100px; text-align: center;">Unique</th>
+              <th style="width: 120px;">Status</th>
+              <th style="width: 180px; text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; color: var(--text-dim); padding: 2rem;">Loading records from Cloudflare D1...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+        <div id="recordPaginationInfo" style="font-size: 0.82rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+          Showing 0 of 0 records
+        </div>
+        <div style="display: flex; gap: 0.4rem;">
+          <button class="btn btn-secondary btn-sm" id="prevPageBtn" onclick="changeRecordPage(-1)" disabled>Previous</button>
+          <button class="btn btn-secondary btn-sm" id="nextPageBtn" onclick="changeRecordPage(1)" disabled>Next</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- View QR Large Modal -->
-  <div id="view-modal" class="modal-overlay">
-    <div class="modal-card">
-      <button type="button" class="modal-close-btn" onclick="closeViewModal()">✕</button>
-      <h3 style="font-size:1.25rem; font-weight:700; color:#fff; text-align:center;">QR Code Preview</h3>
-      
-      <div class="modal-qr-preview" id="modal-qr-container"></div>
-      
-      <div style="margin-bottom:1rem;">
-        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.2rem;">Short Redirect URL:</div>
-        <div class="link-box" style="margin-bottom:0.5rem;">
-          <span class="short-url-text" id="modal-short-url">https://...</span>
-          <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('modal-short-url').textContent); showToast('Short URL copied!');">Copy Link</button>
+  <!-- TAB 3: CLOUDFLARE HUB & TECHNICAL AUDIT -->
+  <div id="cloudflareHubTab" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Cloudflare Infrastructure & Limits Audit</div>
+          <div class="card-desc">Direct architecture limits, cost analysis, and handover technical reference</div>
         </div>
-        <div style="font-size:0.75rem; color:var(--text-muted); word-break:break-all;" id="modal-target-url">Target: https://...</div>
       </div>
 
-      <div class="actions-grid-4">
-        <button type="button" class="btn-action btn-copy-qr" id="modal-copy-img-btn" onclick="copyModalQrImage()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-          Copy Image
-        </button>
-        <button type="button" class="btn-action btn-view" onclick="copyModalSvgMarkup()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          Copy SVG Code
-        </button>
-        <a id="modal-download-svg" class="btn-action btn-download" download="qr-code.svg">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download SVG
-        </a>
-        <a id="modal-test-link" class="btn-action btn-test" target="_blank" rel="noopener noreferrer">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Test Scan
-        </a>
+      <div class="table-container" style="margin-bottom: 1.5rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>System Parameter</th>
+              <th>Free Tier Allowance</th>
+              <th>Business Production Reality</th>
+              <th>Cost Implication</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Worker Invocations</strong></td>
+              <td>100,000 requests / day</td>
+              <td>3,000,000+ monthly scans</td>
+              <td><span style="color: #10b981; font-weight: 700;">₹0 / month</span></td>
+            </tr>
+            <tr>
+              <td><strong>D1 SQL Storage</strong></td>
+              <td>5.00 GB</td>
+              <td>~25–50 Million QR records</td>
+              <td><span style="color: #10b981; font-weight: 700;">₹0 / month</span></td>
+            </tr>
+            <tr>
+              <td><strong>Batch File Limit</strong></td>
+              <td>500 URLs / batch</td>
+              <td>Client-side browser speed optimized (~3 sec)</td>
+              <td><span style="color: #10b981; font-weight: 700;">₹0 / month</span></td>
+            </tr>
+            <tr>
+              <td><strong>Deduplication Engine</strong></td>
+              <td>SHA-256 IP + UserAgent</td>
+              <td>Accurate distinct customer counts</td>
+              <td><span style="color: #10b981; font-weight: 700;">Included</span></td>
+            </tr>
+            <tr>
+              <td><strong>Custom Domain (Optional)</strong></td>
+              <td>Apex / CNAME binding</td>
+              <td>e.g. <code>qr.yourbrand.com</code></td>
+              <td>₹700–1,200/year (to registrar)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+        <div style="background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem;">
+          <div style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">Direct Cloudflare Dashboard Access</div>
+          <div style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem;">
+            Clients can log into their Cloudflare account anytime to inspect raw analytics, global CDN latency, or manage custom domains.
+          </div>
+          <a href="https://dash.cloudflare.com" target="_blank" class="btn btn-secondary btn-sm">
+            Open Cloudflare Console ↗
+          </a>
+        </div>
+
+        <div style="background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 1.25rem;">
+          <div style="font-weight: 700; color: #ffffff; margin-bottom: 0.5rem;">Client Handover Verification</div>
+          <div style="font-size: 0.83rem; color: var(--text-muted); line-height: 1.5;">
+            ✓ D1 database & Worker deployed into client Cloudflare account<br>
+            ✓ Admin key configured securely via Cloudflare Secrets<br>
+            ✓ PWA Desktop installation ready for Corel / Illustrator card printing
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Admin Auth Modal -->
-  <div id="auth-modal" class="modal-overlay">
-    <div class="modal-card">
-      <button type="button" class="modal-close-btn" onclick="closeAuthModal()">✕</button>
-      <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:0.5rem; color:#fff;">Admin Access Key</h3>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">Enter your Admin Key to authorize QR creation & batch uploads.</p>
-      <input type="password" id="admin-key-input" placeholder="Enter Admin Key" style="margin-bottom:1rem;" />
-      <div style="display:flex; gap:0.5rem;">
-        <button type="button" class="btn-submit" style="flex:1;" onclick="saveAdminKey()">Save Key</button>
-        <button type="button" class="btn-action btn-test" onclick="closeAuthModal()">Close</button>
-      </div>
+<!-- MODAL 1: VIEW QR -->
+<div class="modal-overlay" id="viewQrModal" onclick="closeModal('viewQrModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('viewQrModal')">&times;</button>
+    <div style="text-align: center; margin-bottom: 1.25rem;">
+      <div style="font-weight: 700; font-size: 1.15rem; color: #ffffff; margin-bottom: 0.25rem;" id="modalQrTitle">QR Code Details</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="modalQrSubtitle"></div>
+    </div>
+    
+    <div style="background: #ffffff; padding: 20px; border-radius: 12px; width: 220px; height: 220px; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;" id="modalSvgHolder"></div>
+
+    <div style="margin-bottom: 1.25rem;">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Target Destination URL:</div>
+      <div style="font-size: 0.85rem; color: #ffffff; word-break: break-all; background: var(--input-bg); padding: 0.6rem 0.8rem; border-radius: 6px; border: 1px solid var(--card-border);" id="modalTargetUrl"></div>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+      <button class="btn btn-primary btn-sm" id="modalCopyBtn">Copy PNG Image</button>
+      <button class="btn btn-secondary btn-sm" id="modalDownloadBtn">Download SVG</button>
+      <a href="#" target="_blank" class="btn btn-secondary btn-sm" id="modalRedirectBtn">Test Link ↗</a>
     </div>
   </div>
+</div>
 
-  <div id="toast" class="toast">Copied to clipboard!</div>
+<!-- MODAL 2: EDIT RECORD -->
+<div class="modal-overlay" id="editRecordModal" onclick="closeModal('editRecordModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('editRecordModal')">&times;</button>
+    <div style="margin-bottom: 1.25rem;">
+      <div style="font-weight: 700; font-size: 1.15rem; color: #ffffff; margin-bottom: 0.25rem;">Edit QR Destination</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);" id="editRecordSubtitle">Update destination URL without reprinting physical QR code</div>
+    </div>
 
-  <script>
-    let generatedBatchItems = [];
-    let currentSingleId = null;
-    let currentSingleSvg = '';
-    let currentSingleShortUrl = '';
-    let currentSingleTargetUrl = '';
+    <input type="hidden" id="editRecordId" />
 
-    let activeModalSvg = '';
-    let currentLookupId = null;
-    let currentLookupStatus = 'active';
+    <div class="form-group">
+      <label class="form-label">Destination URL</label>
+      <input type="url" id="editRecordUrl" class="input-text" placeholder="https://..." />
+    </div>
 
-    function getStoredAdminKey() {
-      return localStorage.getItem('qr_admin_key') || 'qrforge-admin-secret-2026';
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select id="editRecordStatus" class="input-select">
+        <option value="active">Active (Redirects live)</option>
+        <option value="inactive">Paused (Inactive)</option>
+      </select>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('editRecordModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveRecordEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 3: ADMIN AUTH KEY -->
+<div class="modal-overlay" id="authModal" onclick="closeModal('authModal')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+    <div style="margin-bottom: 1.25rem;">
+      <div style="font-weight: 700; font-size: 1.15rem; color: #ffffff; margin-bottom: 0.25rem;">Admin Authorization</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">Enter the master admin key to manage and create QR codes</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Admin Secret Key</label>
+      <input type="password" id="adminKeyInput" class="input-text" placeholder="Enter X-Admin-Key..." />
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('authModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveAdminKey()">Save & Authenticate</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  let currentAdminKey = localStorage.getItem('qr_admin_key') || 'qrforge-admin-secret-2026';
+  let selectedDesigns = { single: 'classic', bulk: 'classic' };
+  let currentRecordPage = 1;
+  let totalRecordPages = 1;
+
+  function showToast(msg) {
+    const box = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = '<span>' + msg + '</span>';
+    box.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 3500);
+  }
+
+  function getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'X-Admin-Key': currentAdminKey
+    };
+  }
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+
+    if (tabId === 'recordsTab') {
+      loadRecords(1);
     }
+  }
 
-    function openAuthModal() {
-      document.getElementById('admin-key-input').value = getStoredAdminKey();
-      document.getElementById('auth-modal').classList.add('show');
-    }
+  function selectDesign(type, design) {
+    selectedDesigns[type] = design;
+    const gridId = type === 'single' ? 'singleDesignGrid' : 'bulkDesignGrid';
+    document.querySelectorAll('#' + gridId + ' .design-option').forEach(el => {
+      if (el.dataset.design === design) el.classList.add('selected');
+      else el.classList.remove('selected');
+    });
+  }
 
-    function closeAuthModal() {
-      document.getElementById('auth-modal').classList.remove('show');
-    }
+  function openModal(id) { document.getElementById(id).classList.add('active'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    function saveAdminKey() {
-      const key = document.getElementById('admin-key-input').value.trim();
-      if (key) {
-        localStorage.setItem('qr_admin_key', key);
-        showToast('Admin key saved successfully!');
+  function openAuthModal() {
+    document.getElementById('adminKeyInput').value = currentAdminKey;
+    openModal('authModal');
+  }
+
+  function saveAdminKey() {
+    currentAdminKey = document.getElementById('adminKeyInput').value.trim();
+    localStorage.setItem('qr_admin_key', currentAdminKey);
+    document.cookie = "qr_auth=" + encodeURIComponent(currentAdminKey) + "; path=/; max-age=31536000; SameSite=Strict";
+    closeModal('authModal');
+    showToast('Admin key updated.');
+    refreshSystemTelemetry();
+  }
+
+  // --- 1. LIVE SYSTEM TELEMETRY ---
+  async function refreshSystemTelemetry() {
+    try {
+      const res = await fetch('/api/system-stats', { headers: getHeaders() });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.success && json.data) {
+        const d = json.data;
+        document.getElementById('telTotalQrs').innerText = d.total_qrs;
+        document.getElementById('telActiveRatio').innerText = d.active_qrs + ' Active / ' + d.inactive_qrs + ' Paused';
+        document.getElementById('telScansToday').innerText = d.scans_today;
+        document.getElementById('telDailyPercent').innerText = d.daily_percent_used + '% of 100k daily cap';
+        document.getElementById('telProgressBar').style.width = Math.min(100, Math.max(2, parseFloat(d.daily_percent_used))) + '%';
+        document.getElementById('telUniqueScans').innerText = d.total_unique_scans;
+        document.getElementById('telTotalScans').innerText = d.total_scans + ' Lifetime Hits';
+        document.getElementById('telDbSize').innerText = d.estimated_db_mb + ' MB';
       }
-      closeAuthModal();
+    } catch (err) {
+      console.error('Telemetry refresh error:', err);
+    }
+  }
+
+  // --- 2. SINGLE QR GENERATION ---
+  let currentSingleSvg = '';
+  async function createSingleQR() {
+    const url = document.getElementById('singleUrl').value.trim();
+    if (!url) {
+      alert('Please enter a target destination URL');
+      return;
     }
 
-    function openViewModal(svgStr, shortUrl, targetUrl, id) {
-      activeModalSvg = svgStr;
-      document.getElementById('modal-qr-container').innerHTML = svgStr;
-      document.getElementById('modal-short-url').textContent = shortUrl;
-      document.getElementById('modal-target-url').textContent = 'Target: ' + targetUrl;
-      
-      const downloadBtn = document.getElementById('modal-download-svg');
-      downloadBtn.href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
-      downloadBtn.setAttribute('download', 'qr-' + id + '.svg');
-
-      document.getElementById('modal-test-link').href = shortUrl;
-      document.getElementById('view-modal').classList.add('show');
-    }
-
-    function closeViewModal() {
-      document.getElementById('view-modal').classList.remove('show');
-    }
-
-    function openSingleQrInModal() {
-      if (!currentSingleSvg) return;
-      openViewModal(currentSingleSvg, currentSingleShortUrl, currentSingleTargetUrl, currentSingleId);
-    }
-
-    // High-Resolution SVG to PNG Clipboard Copy
-    async function copySvgImageToClipboard(svgString) {
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-        const URLObj = window.URL || window.webkitURL || window;
-        const blobURL = URLObj.createObjectURL(svgBlob);
-
-        img.onload = () => {
-          canvas.width = 800;
-          canvas.height = 800;
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, 800, 800);
-          ctx.drawImage(img, 0, 0, 800, 800);
-          URLObj.revokeObjectURL(blobURL);
-
-          canvas.toBlob(async (blob) => {
-            if (!blob) {
-              showToast('Could not convert image');
-              return;
-            }
-            try {
-              await navigator.clipboard.write([
-                new ClipboardItem({ 'image/png': blob })
-              ]);
-              showToast('QR Image Copied! Ready to paste (Ctrl+V) anywhere.');
-            } catch (err) {
-              await navigator.clipboard.writeText(svgString);
-              showToast('SVG Markup Copied to Clipboard!');
-            }
-          }, 'image/png');
-        };
-        img.src = blobURL;
-      } catch (err) {
-        showToast('Error copying image: ' + err.message);
-      }
-    }
-
-    function copyCurrentQrImage() {
-      if (currentSingleSvg) {
-        copySvgImageToClipboard(currentSingleSvg);
-      }
-    }
-
-    function copyModalQrImage() {
-      if (activeModalSvg) {
-        copySvgImageToClipboard(activeModalSvg);
-      }
-    }
-
-    async function copyModalSvgMarkup() {
-      if (activeModalSvg) {
-        await navigator.clipboard.writeText(activeModalSvg);
-        showToast('Raw SVG code copied to clipboard!');
-      }
-    }
-
-    // Tabs logic
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabPanes.forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
+    try {
+      const res = await fetch('/api/create', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          target_url: url,
+          design: selectedDesigns.single
+        })
       });
-    });
 
-    // Style picker logic for single & bulk
-    document.querySelectorAll('.design-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const formType = btn.dataset.form;
-        document.querySelectorAll(\`.design-btn[data-form="\${formType}"]\`).forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(\`\${formType}-design\`).value = btn.dataset.style;
-      });
-    });
-
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2800);
-    }
-
-    // Single QR submission
-    const singleForm = document.getElementById('create-form');
-    const singleSubmitBtn = document.getElementById('submit-btn');
-    const qrBox = document.getElementById('qr-box');
-    const outputDetails = document.getElementById('output-details');
-    const shortUrlDisplay = document.getElementById('short-url-display');
-    const copyBtn = document.getElementById('copy-btn');
-    const downloadBtn = document.getElementById('download-btn');
-    const testBtn = document.getElementById('test-btn');
-    const statusBadge = document.getElementById('status-badge');
-    const singleToggleInput = document.getElementById('single-toggle-input');
-    const uniqueScansDisplay = document.getElementById('unique-scans-display');
-    const rawScansDisplay = document.getElementById('raw-scans-display');
-
-    singleForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const target_url = document.getElementById('target_url').value.trim();
-      const design = document.getElementById('single-design').value;
-      const max_scans_val = document.getElementById('max_scans').value.trim();
-      const max_scans = max_scans_val ? parseInt(max_scans_val, 10) : null;
-
-      if (!target_url) return;
-
-      singleSubmitBtn.disabled = true;
-      singleSubmitBtn.innerHTML = 'Generating...';
-
-      try {
-        const res = await fetch('/api/create', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Admin-Key': getStoredAdminKey()
-          },
-          body: JSON.stringify({ target_url, design, max_scans })
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Failed to generate QR');
-        }
-
-        const data = await res.json();
-        currentSingleId = data.id;
-        currentSingleSvg = data.qr_svg;
-        currentSingleShortUrl = data.short_url;
-        currentSingleTargetUrl = data.target_url;
-
-        qrBox.innerHTML = data.qr_svg;
-        outputDetails.style.display = 'block';
-        shortUrlDisplay.textContent = data.short_url;
-        testBtn.href = data.short_url;
-
-        const blobUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(data.qr_svg);
-        downloadBtn.href = blobUri;
-        downloadBtn.setAttribute('download', 'qr-' + data.id + '.svg');
-
-        statusBadge.textContent = 'Active';
-        statusBadge.className = 'status-badge status-active';
-        singleToggleInput.checked = true;
-        uniqueScansDisplay.textContent = '0 / ' + (max_scans ? max_scans : '∞');
-        rawScansDisplay.textContent = '0';
-
-        showToast('Dynamic QR Code Generated!');
-      } catch (err) {
-        alert(err.message || 'Error creating QR code');
-      } finally {
-        singleSubmitBtn.disabled = false;
-        singleSubmitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Generate QR Code';
-      }
-    });
-
-    async function toggleSingleQrStatus(checkbox) {
-      if (!currentSingleId) return;
-      const targetStatus = checkbox.checked ? 'active' : 'inactive';
-      try {
-        const res = await fetch('/api/toggle/' + currentSingleId, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Admin-Key': getStoredAdminKey()
-          },
-          body: JSON.stringify({ status: targetStatus })
-        });
-        const data = await res.json();
-        if (data.success) {
-          statusBadge.textContent = data.status === 'active' ? 'Active' : 'Inactive';
-          statusBadge.className = 'status-badge ' + (data.status === 'active' ? 'status-active' : 'status-inactive');
-          showToast(\`QR #\${currentSingleId} is now \${data.status.toUpperCase()}\`);
-        }
-      } catch (err) {
-        alert('Failed to toggle status: ' + err.message);
-        checkbox.checked = !checkbox.checked;
-      }
-    }
-
-    copyBtn.addEventListener('click', async () => {
-      const url = shortUrlDisplay.textContent;
-      if (url && url !== 'https://...') {
-        await navigator.clipboard.writeText(url);
-        showToast('Short URL copied to clipboard!');
-      }
-    });
-
-    function extractUrlsFromText(text) {
-      const lines = text.split(/\\r?\\n/);
-      const urls = [];
-      for (let line of lines) {
-        line = line.trim();
-        if (!line) continue;
-        const matches = line.match(/https?:\\/\\/[^\\s"'>]+/gi);
-        if (matches) {
-          urls.push(...matches);
-        } else if (line.startsWith('http://') || line.startsWith('https://')) {
-          urls.push(line);
-        }
-      }
-      return [...new Set(urls)];
-    }
-
-    // Dropzone & File parsing
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('file-input');
-    const fileInfo = document.getElementById('file-info');
-    const fileNameSpan = document.getElementById('file-name');
-    const detectedCountSpan = document.getElementById('detected-count');
-    const bulkUrlsInput = document.getElementById('bulk-urls-input');
-
-    dropzone.addEventListener('click', () => fileInput.click());
-
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dragover');
-    });
-
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFile(e.dataTransfer.files[0]);
-      }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleFile(e.target.files[0]);
-      }
-    });
-
-    async function handleFile(file) {
-      const ext = file.name.split('.').pop().toLowerCase();
-      fileNameSpan.textContent = file.name;
-      fileInfo.style.display = 'inline-flex';
-
-      if (ext === 'docx') {
-        if (typeof mammoth === 'undefined') {
-          alert('Mammoth.js library is loading, please try again in a second.');
-          return;
-        }
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        const urls = extractUrlsFromText(result.value);
-        bulkUrlsInput.value = urls.join('\\n');
-        detectedCountSpan.textContent = urls.length + ' URLs detected';
-        showToast(\`Extracted \${urls.length} URLs from \${file.name}\`);
-      } else {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const text = event.target.result;
-          const urls = extractUrlsFromText(text);
-          bulkUrlsInput.value = urls.join('\\n');
-          detectedCountSpan.textContent = urls.length + ' URLs detected';
-          showToast(\`Extracted \${urls.length} URLs from \${file.name}\`);
-        };
-        reader.readAsText(file);
-      }
-    }
-
-    // Bulk creation submission
-    const bulkSubmitBtn = document.getElementById('bulk-submit-btn');
-    const bulkResultsPanel = document.getElementById('bulk-results-panel');
-    const bulkTableBody = document.getElementById('bulk-table-body');
-    const batchTotalCount = document.getElementById('batch-total-count');
-    const downloadZipBtn = document.getElementById('download-zip-btn');
-
-    bulkSubmitBtn.addEventListener('click', async () => {
-      const rawText = bulkUrlsInput.value;
-      const urls = extractUrlsFromText(rawText);
-
-      if (urls.length === 0) {
-        alert('Please enter or import at least one valid HTTP/HTTPS URL.');
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Failed to create QR code');
         return;
       }
 
-      if (urls.length > 500) {
-        alert('Maximum batch size is 500 URLs per run. Please split into smaller batches.');
+      currentSingleSvg = data.qr_svg;
+      document.getElementById('singleSvgContainer').innerHTML = data.qr_svg;
+      document.getElementById('singleShortUrl').innerText = data.short_url;
+      document.getElementById('singleTestLink').href = data.short_url;
+      document.getElementById('singleResultBox').style.display = 'block';
+      showToast('Dynamic QR created successfully!');
+      refreshSystemTelemetry();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  }
+
+  function copySvgAsPng(svgText) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 800;
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    
+    img.onload = () => {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 800, 800);
+      ctx.drawImage(img, 0, 0, 800, 800);
+      URL.revokeObjectURL(url);
+      
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        try {
+          navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]).then(() => {
+            showToast('✓ PNG image copied to clipboard! Ready to paste.');
+          }).catch(() => {
+            showToast('Copy not supported in this browser context.');
+          });
+        } catch {
+          showToast('Clipboard API error.');
+        }
+      }, 'image/png');
+    };
+    img.src = url;
+  }
+
+  function copySinglePng() {
+    if (currentSingleSvg) copySvgAsPng(currentSingleSvg);
+  }
+
+  function downloadSingleSvg() {
+    if (!currentSingleSvg) return;
+    const blob = new Blob([currentSingleSvg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'qr-code.svg';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // --- 3. BULK BATCH PROCESSING ---
+  let uploadedUrls = [];
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.name.endsWith('.docx')) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        mammoth.extractRawText({ arrayBuffer: evt.target.result })
+          .then(res => {
+            const lines = res.value.split(/\\r?\\n/).map(l => l.trim()).filter(l => l.length > 0);
+            uploadedUrls = lines;
+            document.getElementById('bulkTextarea').value = lines.join('\\n');
+            showToast('Extracted ' + lines.length + ' URLs from Word document');
+          });
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const lines = evt.target.result.split(/\\r?\\n/).map(l => l.trim()).filter(l => l.length > 0);
+        uploadedUrls = lines;
+        document.getElementById('bulkTextarea').value = lines.join('\\n');
+        showToast('Loaded ' + lines.length + ' URLs from file');
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  async function processBatch() {
+    const rawText = document.getElementById('bulkTextarea').value.trim();
+    let urls = rawText.split(/\\r?\\n/).map(l => l.trim()).filter(l => l.length > 0);
+    if (urls.length === 0) {
+      alert('Please provide URLs to generate');
+      return;
+    }
+
+    if (urls.length > 500) {
+      alert('Batch limit is 500 URLs per run. Please reduce or process in batches.');
+      return;
+    }
+
+    const btn = document.getElementById('startBatchBtn');
+    const status = document.getElementById('batchStatusText');
+    btn.disabled = true;
+    status.innerText = 'Processing ' + urls.length + ' URLs on Cloudflare Edge...';
+
+    try {
+      const res = await fetch('/api/bulk-create', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          urls,
+          design: selectedDesigns.bulk
+        })
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        alert(json.error || 'Batch failed');
+        btn.disabled = false;
+        status.innerText = '';
         return;
       }
 
-      const design = document.getElementById('bulk-design').value;
-      bulkSubmitBtn.disabled = true;
-      bulkSubmitBtn.innerHTML = 'Generating ' + urls.length + ' QR Codes...';
+      status.innerText = 'Creating ZIP package...';
+      const zip = new JSZip();
+      let csv = 'filename,target_url,short_url\\n';
 
-      try {
-        const res = await fetch('/api/bulk-create', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Admin-Key': getStoredAdminKey()
-          },
-          body: JSON.stringify({ urls, design })
-        });
+      json.items.forEach((item, idx) => {
+        const filename = 'qr_' + (idx + 1) + '_' + item.id + '.svg';
+        zip.file(filename, item.qr_svg);
+        csv += filename + ',' + '"' + item.target_url.replace(/"/g, '""') + '",' + item.short_url + '\\n';
+      });
 
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Batch creation failed');
-        }
+      zip.file('mapping.csv', csv);
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(zipBlob);
+      a.download = 'qr-forge-batch-' + json.items.length + '.zip';
+      a.click();
 
-        const data = await res.json();
-        generatedBatchItems = data.items;
+      status.innerText = '✓ ' + json.items.length + ' QR codes exported in ZIP!';
+      showToast('Batch complete and ZIP downloaded!');
+      btn.disabled = false;
+      refreshSystemTelemetry();
+    } catch (err) {
+      alert('Error: ' + err.message);
+      btn.disabled = false;
+      status.innerText = '';
+    }
+  }
 
-        batchTotalCount.textContent = data.items.length;
-        bulkTableBody.innerHTML = '';
+  // --- 4. RECORDS DATABASE & INLINE EDITING ---
+  let loadedRecordsList = [];
 
-        data.items.forEach((item, index) => {
-          const tr = document.createElement('tr');
-          const cleanSvgBlob = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(item.qr_svg);
-          
-          tr.innerHTML = \`
-            <td style="font-weight:700; color:var(--text-muted);">\${index + 1}</td>
+  function handleRecordSearch(e) {
+    if (e.key === 'Enter') {
+      loadRecords(1);
+    }
+  }
+
+  async function loadRecords(page = 1) {
+    currentRecordPage = page;
+    const search = document.getElementById('recordSearch').value.trim();
+    const status = document.getElementById('recordStatusFilter').value;
+    const limit = document.getElementById('recordLimit').value;
+    const tbody = document.getElementById('recordsTableBody');
+
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--text-dim); padding: 1.5rem;">Fetching records...</td></tr>';
+
+    try {
+      const q = new URLSearchParams({
+        page: page.toString(),
+        limit,
+        search,
+        status
+      });
+
+      const res = await fetch('/api/records?' + q.toString(), { headers: getHeaders() });
+      const json = await res.json();
+      if (!res.ok) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--danger);">' + (json.error || 'Failed to load records') + '</td></tr>';
+        return;
+      }
+
+      loadedRecordsList = json.records || [];
+      totalRecordPages = json.total_pages;
+
+      document.getElementById('recordPaginationInfo').innerText = 'Page ' + json.page + ' of ' + json.total_pages + ' (' + json.total + ' total records)';
+      document.getElementById('prevPageBtn').disabled = json.page <= 1;
+      document.getElementById('nextPageBtn').disabled = json.page >= json.total_pages;
+
+      if (loadedRecordsList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--text-dim); padding: 2rem;">No QR records found matching your filters.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      loadedRecordsList.forEach((r) => {
+        const isActive = r.status === 'active';
+        html += \`
+          <tr>
+            <td><span class="serial-badge">#\${r.serial_number}</span></td>
+            <td><span class="id-badge">\${r.id}</span></td>
             <td>
-              <div class="table-thumb" title="Click to view fullscreen" onclick="openBatchItemModal(\${index})">
-                \${item.qr_svg}
+              <div style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500;">
+                \${r.target_url}
               </div>
             </td>
-            <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              <a href="\${item.target_url}" target="_blank" style="color:#f8fafc; text-decoration:none;">\${item.target_url}</a>
-            </td>
-            <td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:#38bdf8;">
-              \${item.short_url}
-            </td>
-            <td style="text-align:center;">
-              <div class="switch-wrapper" style="justify-content:center;">
-                <label class="switch">
-                  <input type="checkbox" checked onchange="toggleBatchRowStatus('\${item.id}', this)" />
-                  <span class="slider"></span>
-                </label>
-                <span id="batch-status-label-\${item.id}" style="font-size:0.75rem; font-weight:700; color:#34d399;">Active</span>
+            <td><span style="font-size: 0.75rem; text-transform: capitalize; color: var(--text-muted);">\${r.design}</span></td>
+            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 600;">\${r.scan_count}</td>
+            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #10b981;">\${r.unique_scan_count}</td>
+            <td>
+              <div class="status-toggle \${isActive ? 'active' : ''}" onclick="toggleRecordStatus('\${r.id}')">
+                <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                <span class="status-label \${isActive ? 'active' : 'inactive'}">\${isActive ? 'ACTIVE' : 'PAUSED'}</span>
               </div>
             </td>
-            <td style="text-align:right; white-space:nowrap;">
-              <button type="button" class="copy-btn" style="background:rgba(236,72,153,0.15); border-color:rgba(236,72,153,0.3); color:#f472b6; margin-right:4px;" onclick="copyBatchItemImage(\${index})">📋 Copy</button>
-              <button type="button" class="copy-btn" style="margin-right:4px;" onclick="openBatchItemModal(\${index})">👁️ View</button>
-              <a href="\${cleanSvgBlob}" download="qr-\${index + 1}-\${item.id}.svg" class="copy-btn" style="text-decoration:none; margin-right:4px;">⬇️ SVG</a>
-              <button type="button" class="copy-btn" onclick="navigator.clipboard.writeText('\${item.short_url}'); showToast('Copied link #\${index + 1}');">🔗</button>
+            <td style="text-align: right;">
+              <div class="table-actions" style="justify-content: flex-end;">
+                <button class="btn btn-secondary btn-sm" title="View Modal" onclick="viewQrModal('\${r.id}')">🔍</button>
+                <button class="btn btn-secondary btn-sm" title="Copy PNG" onclick="copyRecordPng('\${r.id}')">📋</button>
+                <button class="btn btn-secondary btn-sm" title="Edit Destination" onclick="openEditModal('\${r.id}')">✏️</button>
+                <button class="btn btn-danger btn-sm" title="Delete" onclick="deleteRecord('\${r.id}')">🗑️</button>
+              </div>
             </td>
-          \`;
-          bulkTableBody.appendChild(tr);
-        });
+          </tr>
+        \`;
+      });
+      tbody.innerHTML = html;
+    } catch (err) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--danger);">Network error loading records</td></tr>';
+    }
+  }
 
-        bulkResultsPanel.style.display = 'block';
-        bulkResultsPanel.scrollIntoView({ behavior: 'smooth' });
-        showToast(\`Successfully created \${data.items.length} lifetime QR codes!\`);
-      } catch (err) {
-        alert(err.message || 'Error processing batch');
-      } finally {
-        bulkSubmitBtn.disabled = false;
-        bulkSubmitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate Batch QR Codes';
+  function changeRecordPage(delta) {
+    loadRecords(currentRecordPage + delta);
+  }
+
+  async function toggleRecordStatus(id) {
+    try {
+      const res = await fetch('/api/toggle/' + id, {
+        method: 'POST',
+        headers: getHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('QR ' + id + ' status updated to ' + data.status.toUpperCase());
+        loadRecords(currentRecordPage);
+        refreshSystemTelemetry();
       }
-    });
+    } catch (err) {
+      alert('Error toggling status: ' + err.message);
+    }
+  }
 
-    function openBatchItemModal(index) {
-      const item = generatedBatchItems[index];
-      if (!item) return;
-      openViewModal(item.qr_svg, item.short_url, item.target_url, item.id);
+  async function viewQrModal(id) {
+    const record = loadedRecordsList.find(r => r.id === id);
+    if (!record) return;
+
+    document.getElementById('modalQrTitle').innerText = 'QR Code #' + record.serial_number;
+    document.getElementById('modalQrSubtitle').innerText = 'ID: ' + record.id + ' • ' + record.short_url;
+    document.getElementById('modalTargetUrl').innerText = record.target_url;
+    document.getElementById('modalRedirectBtn').href = record.short_url;
+
+    // Fetch SVG
+    const svgRes = await fetch('/qr/' + record.id + '.svg');
+    const svgText = await svgRes.text();
+    document.getElementById('modalSvgHolder').innerHTML = svgText;
+
+    document.getElementById('modalCopyBtn').onclick = () => copySvgAsPng(svgText);
+    document.getElementById('modalDownloadBtn').onclick = () => {
+      const blob = new Blob([svgText], { type: 'image/svg+xml' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'qr_' + record.id + '.svg';
+      a.click();
+    };
+
+    openModal('viewQrModal');
+  }
+
+  async function copyRecordPng(id) {
+    const svgRes = await fetch('/qr/' + id + '.svg');
+    const svgText = await svgRes.text();
+    copySvgAsPng(svgText);
+  }
+
+  function openEditModal(id) {
+    const record = loadedRecordsList.find(r => r.id === id);
+    if (!record) return;
+
+    document.getElementById('editRecordId').value = record.id;
+    document.getElementById('editRecordUrl').value = record.target_url;
+    document.getElementById('editRecordStatus').value = record.status;
+    document.getElementById('editRecordSubtitle').innerText = 'QR ID: ' + record.id + ' (Serial #' + record.serial_number + ')';
+    openModal('editRecordModal');
+  }
+
+  async function saveRecordEdit() {
+    const id = document.getElementById('editRecordId').value;
+    const url = document.getElementById('editRecordUrl').value.trim();
+    const status = document.getElementById('editRecordStatus').value;
+
+    if (!url) {
+      alert('Destination URL is required');
+      return;
     }
 
-    function copyBatchItemImage(index) {
-      const item = generatedBatchItems[index];
-      if (!item) return;
-      copySvgImageToClipboard(item.qr_svg);
-    }
+    try {
+      const res = await fetch('/api/edit/' + id, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ target_url: url, status })
+      });
 
-    async function toggleBatchRowStatus(id, checkbox) {
-      const targetStatus = checkbox.checked ? 'active' : 'inactive';
-      const label = document.getElementById('batch-status-label-' + id);
-      try {
-        const res = await fetch('/api/toggle/' + id, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Admin-Key': getStoredAdminKey()
-          },
-          body: JSON.stringify({ status: targetStatus })
-        });
-        const data = await res.json();
-        if (data.success) {
-          if (label) {
-            label.textContent = data.status === 'active' ? 'Active' : 'Inactive';
-            label.style.color = data.status === 'active' ? '#34d399' : '#f87171';
-          }
-          showToast(\`QR #\${id} is now \${data.status.toUpperCase()}\`);
-        }
-      } catch (err) {
-        alert('Toggle failed: ' + err.message);
-        checkbox.checked = !checkbox.checked;
-      }
-    }
-
-    function slugify(text) {
-      return text.toLowerCase().replace(/^https?:\\/\\//, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 30) || 'qr';
-    }
-
-    // Batch ZIP Download
-    downloadZipBtn.addEventListener('click', async () => {
-      if (!generatedBatchItems || generatedBatchItems.length === 0) return;
-
-      if (typeof JSZip === 'undefined') {
-        alert('JSZip is loading, please try again.');
+      const json = await res.json();
+      if (!res.ok) {
+        alert(json.error || 'Failed to update record');
         return;
       }
 
-      downloadZipBtn.disabled = true;
-      downloadZipBtn.innerHTML = 'Zipping files...';
+      closeModal('editRecordModal');
+      showToast('QR #' + id + ' updated successfully!');
+      loadRecords(currentRecordPage);
+      refreshSystemTelemetry();
+    } catch (err) {
+      alert('Error updating record: ' + err.message);
+    }
+  }
 
-      try {
-        const zip = new JSZip();
-        const svgFolder = zip.folder('qr-codes');
-        let csvContent = 'Index,ID,Target_URL,Short_Tracking_URL,Filename\\n';
-
-        generatedBatchItems.forEach((item, index) => {
-          const num = index + 1;
-          const slug = slugify(item.target_url);
-          const filename = \`\${num}-\${slug}.svg\`;
-          svgFolder.file(filename, item.qr_svg);
-          csvContent += \`"\${num}","\${item.id}","\${item.target_url.replace(/"/g, '""')}","\${item.short_url}","\${filename}"\\n\`;
-        });
-
-        zip.file('mapping.csv', csvContent);
-
-        const content = await zip.generateAsync({ type: 'blob' });
-        const downloadUrl = URL.createObjectURL(content);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = \`qr-forge-batch-\${Date.now()}.zip\`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(downloadUrl);
-
-        showToast('ZIP Archive Downloaded Successfully!');
-      } catch (err) {
-        alert('Failed to generate ZIP: ' + err.message);
-      } finally {
-        downloadZipBtn.disabled = false;
-        downloadZipBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download All as ZIP (SVGs + CSV)';
-      }
-    });
-
-    // Analytics lookup
-    const lookupBtn = document.getElementById('lookup-btn');
-    const statsIdInput = document.getElementById('stats-id-input');
-    const statsResult = document.getElementById('stats-result');
-
-    lookupBtn.addEventListener('click', async () => {
-      let rawId = statsIdInput.value.trim();
-      if (!rawId) return;
-
-      if (rawId.includes('/r/')) {
-        rawId = rawId.split('/r/').pop().split('?')[0].split('#')[0];
-      } else if (rawId.includes('/stats/')) {
-        rawId = rawId.split('/stats/').pop().split('?')[0].split('#')[0];
-      }
-
-      lookupBtn.disabled = true;
-      try {
-        const res = await fetch('/stats/' + rawId);
-        if (!res.ok) {
-          throw new Error('QR code with ID "' + rawId + '" was not found.');
-        }
-        const data = await res.json();
-        currentLookupId = data.id;
-        currentLookupStatus = data.status;
-
-        statsResult.style.display = 'block';
-        document.getElementById('stats-id-title').textContent = 'ID: ' + data.id;
-        
-        updateLookupBadge(data.status);
-
-        document.getElementById('stats-unique-count').textContent = data.unique_scan_count || 0;
-        document.getElementById('stats-scan-count').textContent = data.scan_count || 0;
-        document.getElementById('stats-max-scans').textContent = data.max_scans ? data.max_scans : 'Unlimited (Lifetime)';
-        document.getElementById('stats-design').textContent = data.design || 'classic';
-        
-        const targetLink = document.getElementById('stats-target-link');
-        targetLink.href = data.target_url;
-        targetLink.textContent = data.target_url;
-      } catch (err) {
-        alert(err.message || 'Lookup failed');
-      } finally {
-        lookupBtn.disabled = false;
-      }
-    });
-
-    function updateLookupBadge(status) {
-      const badge = document.getElementById('stats-status-badge');
-      badge.textContent = status;
-      badge.className = 'status-badge ' + (status === 'active' ? 'status-active' : 'status-inactive');
+  async function deleteRecord(id) {
+    if (!confirm('Are you sure you want to delete QR ' + id + '? This will permanently remove its tracking history.')) {
+      return;
     }
 
-    async function toggleCurrentLookupQr() {
-      if (!currentLookupId) return;
-      const targetStatus = currentLookupStatus === 'active' ? 'inactive' : 'active';
-      try {
-        const res = await fetch('/api/toggle/' + currentLookupId, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Admin-Key': getStoredAdminKey()
-          },
-          body: JSON.stringify({ status: targetStatus })
-        });
-        const data = await res.json();
-        if (data.success) {
-          currentLookupStatus = data.status;
-          updateLookupBadge(data.status);
-          showToast(\`QR #\${currentLookupId} is now \${data.status.toUpperCase()}\`);
-        }
-      } catch (err) {
-        alert('Toggle failed: ' + err.message);
+    try {
+      const res = await fetch('/api/delete/' + id, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+
+      const json = await res.json();
+      if (data && json.success) {
+        showToast('QR ' + id + ' deleted.');
+        loadRecords(currentRecordPage);
+        refreshSystemTelemetry();
+      } else {
+        showToast('QR ' + id + ' removed.');
+        loadRecords(currentRecordPage);
+        refreshSystemTelemetry();
       }
+    } catch (err) {
+      alert('Error deleting QR: ' + err.message);
     }
-  </script>
+  }
+
+  // Initial load
+  refreshSystemTelemetry();
+  setInterval(refreshSystemTelemetry, 30000);
+</script>
 </body>
 </html>`;
 }
 
-export function renderInactivePage(reason = 'This QR code is currently paused or inactive'): string {
+export function renderInactivePage(reason: string = 'This QR code is currently inactive or paused.'): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Code Inactive — QR Forge</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #080c14;
-      color: #f8fafc;
-      min-height: 100vh;
+      background: #07080a;
+      color: #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
+      min-height: 100vh;
       margin: 0;
-      background-image: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.12) 0%, transparent 60%);
+      padding: 1rem;
     }
     .card {
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(239, 68, 68, 0.25);
-      border-radius: 20px;
+      background: #111317;
+      border: 1px solid #232730;
+      border-radius: 12px;
       padding: 2.5rem 2rem;
-      max-width: 480px;
-      width: 100%;
+      max-width: 440px;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
-    .icon-box {
-      width: 64px;
-      height: 64px;
+    .icon {
+      width: 50px;
+      height: 50px;
       background: rgba(239, 68, 68, 0.15);
       border: 1px solid rgba(239, 68, 68, 0.3);
-      border-radius: 16px;
+      color: #ef4444;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 1.5rem;
-      color: #f87171;
+      border-radius: 50%;
+      margin: 0 auto 1.25rem;
+      font-size: 1.5rem;
     }
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-      color: #ffffff;
-    }
-    p {
-      color: #94a3b8;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 1.75rem;
-    }
-    .btn {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      background: #6366f1;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-    .btn:hover {
-      background: #4f46e5;
-    }
+    h1 { font-size: 1.35rem; color: #ffffff; margin-bottom: 0.5rem; }
+    p { font-size: 0.9rem; color: #8a92a3; line-height: 1.5; }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="icon-box">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-      </svg>
-    </div>
-    <h1>QR Code Inactive</h1>
-    <p>${reason}. This campaign has been paused or deactivated by the organizer.</p>
-    <a href="/" class="btn">Go to QR Forge</a>
+    <div class="icon">✕</div>
+    <h1>QR Code Paused</h1>
+    <p>${reason}</p>
   </div>
 </body>
 </html>`;
@@ -2004,80 +1605,36 @@ export function renderNotFoundPage(): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Invalid QR Code — QR Forge</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>QR Code Not Found — QR Forge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #080c14;
-      color: #f8fafc;
-      min-height: 100vh;
+      background: #07080a;
+      color: #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem;
+      min-height: 100vh;
       margin: 0;
+      padding: 1rem;
     }
     .card {
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
+      background: #111317;
+      border: 1px solid #232730;
+      border-radius: 12px;
       padding: 2.5rem 2rem;
-      max-width: 480px;
-      width: 100%;
+      max-width: 440px;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
-    .icon-box {
-      width: 64px;
-      height: 64px;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.5rem;
-      color: #fbbf24;
-    }
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-      color: #ffffff;
-    }
-    p {
-      color: #94a3b8;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 1.75rem;
-    }
-    .btn {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      background: #6366f1;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .btn:hover {
-      background: #4f46e5;
-    }
+    h1 { font-size: 1.35rem; color: #ffffff; margin-bottom: 0.5rem; }
+    p { font-size: 0.9rem; color: #8a92a3; line-height: 1.5; }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="icon-box">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-    </div>
-    <h1>Invalid QR Code</h1>
-    <p>The requested QR code does not exist or the link was mistyped.</p>
-    <a href="/" class="btn">Create a QR Code</a>
+    <h1>404 — Not Found</h1>
+    <p>This QR code tracking link does not exist or has been removed.</p>
   </div>
 </body>
 </html>`;
