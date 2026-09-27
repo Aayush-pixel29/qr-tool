@@ -54,7 +54,7 @@ export function renderHomePage(): string {
 
     .container {
       width: 100%;
-      max-width: 1080px;
+      max-width: 1100px;
     }
 
     /* Top Navigation Bar */
@@ -102,7 +102,7 @@ export function renderHomePage(): string {
 
     header {
       text-align: center;
-      margin-bottom: 2.25rem;
+      margin-bottom: 1.75rem;
     }
 
     h1 {
@@ -119,9 +119,68 @@ export function renderHomePage(): string {
     .subtitle {
       color: var(--text-muted);
       font-size: 1.05rem;
-      max-width: 650px;
+      max-width: 680px;
       margin: 0 auto;
       line-height: 1.55;
+    }
+
+    /* System Limits Live Metric Banner */
+    .limits-banner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 860px) {
+      .limits-banner {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .limits-banner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .limit-pill {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .limit-pill:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .limit-pill-header {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .limit-pill-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .limit-pill-desc {
+      font-size: 0.725rem;
+      color: #94a3b8;
+      margin-top: 0.2rem;
     }
 
     /* Tabs Navigation */
@@ -134,7 +193,7 @@ export function renderHomePage(): string {
       padding: 0.35rem;
       border-radius: 14px;
       border: 1px solid var(--card-border);
-      max-width: 520px;
+      max-width: 540px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -611,6 +670,21 @@ export function renderHomePage(): string {
       margin-top: 0.75rem;
     }
 
+    /* Info Callout Box */
+    .info-callout {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.825rem;
+      color: #c7d2fe;
+      line-height: 1.45;
+    }
+
     /* Results Table */
     .results-section {
       margin-top: 2rem;
@@ -760,6 +834,49 @@ export function renderHomePage(): string {
       display: block;
     }
 
+    /* Specs Reference Section at bottom */
+    .specs-card {
+      margin-top: 2.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 2rem;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .specs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .spec-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 1rem;
+    }
+
+    .spec-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .spec-desc {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
     .toast {
       position: fixed;
       bottom: 2rem;
@@ -790,7 +907,7 @@ export function renderHomePage(): string {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/>
         </svg>
-        Cloudflare Workers + D1 Edge Engine
+        Cloudflare Edge Workers + D1 Database
       </div>
       <div id="auth-status-badge" class="auth-badge" onclick="openAuthModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -802,8 +919,47 @@ export function renderHomePage(): string {
 
     <header>
       <h1>QR Forge</h1>
-      <p class="subtitle">Generate high-reliability dynamic QR codes with 1-click clipboard image copy, batch file generation, and manual pause/resume switches.</p>
+      <p class="subtitle">Enterprise dynamic QR engine with 1-click clipboard image copy, batch file processing, unique customer tracking, and unlimited lifetime scan capacity.</p>
     </header>
+
+    <!-- LIVE SYSTEM LIMITS & CAPACITY BANNER -->
+    <div class="limits-banner">
+      <div class="limit-pill">
+        <div class="limit-pill-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Batch Capacity
+        </div>
+        <div class="limit-pill-value">500 URLs / Run</div>
+        <div class="limit-pill-desc">Supports .txt & .docx with instant ZIP export</div>
+      </div>
+
+      <div class="limit-pill">
+        <div class="limit-pill-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Scan Validity
+        </div>
+        <div class="limit-pill-value">Lifetime Active</div>
+        <div class="limit-pill-desc">Zero auto-expiration; pause/resume anytime</div>
+      </div>
+
+      <div class="limit-pill">
+        <div class="limit-pill-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Database Space
+        </div>
+        <div class="limit-pill-value">5 GB Cloud SQL</div>
+        <div class="limit-pill-desc">Stores up to ~25,000,000 QR codes in D1</div>
+      </div>
+
+      <div class="limit-pill">
+        <div class="limit-pill-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Customer Metric
+        </div>
+        <div class="limit-pill-value">SHA-256 Unique</div>
+        <div class="limit-pill-desc">Distinguishes real customers from repeat hits</div>
+      </div>
+    </div>
 
     <!-- Navigation Tabs -->
     <div class="tabs-nav">
@@ -813,7 +969,7 @@ export function renderHomePage(): string {
       </button>
       <button class="tab-btn" data-tab="bulk-tab">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Bulk Batch (.txt / .docx)
+        Bulk Batch Studio
       </button>
       <button class="tab-btn" data-tab="analytics-tab">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
@@ -864,7 +1020,7 @@ export function renderHomePage(): string {
             <div class="form-group">
               <label for="max_scans">
                 Unique Customer Cap
-                <span class="label-hint">(Optional — empty for lifetime unlimited)</span>
+                <span class="label-hint">(Optional — leave empty for lifetime unlimited)</span>
               </label>
               <input type="number" id="max_scans" name="max_scans" min="1" placeholder="e.g. 500 (empty = lifetime unlimited)" />
             </div>
@@ -939,8 +1095,16 @@ export function renderHomePage(): string {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
           </svg>
-          Batch Import & Generator (Lifetime QRs with View & Copy Options)
+          Batch Import & Generator Studio (Lifetime QRs with View & Copy Options)
         </h2>
+
+        <!-- Info callout -->
+        <div class="info-callout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div>
+            <strong>Batch Processing Specifications:</strong> Upload up to <strong>500 URLs per run</strong> via <code>.txt</code> or <code>.docx</code> file. Every generated QR code receives lifetime unlimited scanning, instant interactive toggles, vector SVGs, and a combined <code>mapping.csv</code> ZIP archive.
+          </div>
+        </div>
 
         <!-- Dropzone -->
         <div class="dropzone" id="dropzone">
@@ -959,7 +1123,7 @@ export function renderHomePage(): string {
         <div class="form-group">
           <label for="bulk-urls-input">
             Or Paste URLs directly
-            <span class="label-hint">(One URL per line)</span>
+            <span class="label-hint">(One URL per line — up to 500 URLs per batch)</span>
           </label>
           <textarea id="bulk-urls-input" placeholder="https://example.com/item-1&#10;https://example.com/item-2&#10;https://example.com/item-3"></textarea>
         </div>
@@ -1070,6 +1234,40 @@ export function renderHomePage(): string {
           <div style="margin-top:0.85rem; font-size:0.8rem; color:var(--text-muted); word-break:break-all;">
             Target: <a id="stats-target-link" href="#" target="_blank" style="color:#a5b4fc;"></a>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE SPECS & LIMITS REFERENCE CARD -->
+    <div class="specs-card">
+      <div style="text-align:center; margin-bottom:1rem;">
+        <h3 style="font-size:1.1rem; font-weight:700; color:#fff;">System Capacity & Technical Limits Reference</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted);">Enterprise specifications for client presentations and high-volume deployment.</p>
+      </div>
+
+      <div class="specs-grid">
+        <div class="spec-box">
+          <div class="spec-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+            Batch Ingestion: 500 / Run
+          </div>
+          <div class="spec-desc">Ingests and renders up to 500 URLs from Word or plain text files in a single run. Unlimited consecutive batches can be executed.</div>
+        </div>
+
+        <div class="spec-box">
+          <div class="spec-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Lifetime Validity & Zero Expiry
+          </div>
+          <div class="spec-desc">Every generated dynamic QR code stays permanently active with unlimited scans. Codes only pause when you manually toggle them.</div>
+        </div>
+
+        <div class="spec-box">
+          <div class="spec-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/></svg>
+            Storage: 5 GB Cloud SQL
+          </div>
+          <div class="spec-desc">Powered by Cloudflare D1 with capacity for over 25,000,000 QR codes and atomic transaction logging for millions of visits.</div>
         </div>
       </div>
     </div>
